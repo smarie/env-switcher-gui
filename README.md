@@ -6,6 +6,6 @@ A very simple cross-OS GUI to manage environment variables.
 * Unit tests with asserts
 
 # TODO
-* build the GUI using [wxPython](http://zetcode.com/wxpython/introduction/)
+* build the GUI using [PyQt](https://nikolak.com/pyqt-qt-designer-getting-started/) (or, not preferred, [wxPython](http://zetcode.com/wxpython/introduction/))
 * package using [pyinstaller](https://github.com/pyinstaller/pyinstaller/wiki), maybe following the [tutorial](http://www.blog.pythonlibrary.org/2010/08/10/a-pyinstaller-tutorial-build-a-binary-series/)
 * Add support for other OS
