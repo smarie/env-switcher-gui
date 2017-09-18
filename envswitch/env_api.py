@@ -35,7 +35,7 @@ def get_external_env_var(var_name):
     """
     case = check_platform_and_get_case()
     if case is WINDOWS:
-        from envswitch.win import get_env_with_cmd_win
+        from envswitch.env_api_winimpl import get_env_with_cmd_win
         return get_env_with_cmd_win(var_name)
 
     # #spawn an independnt process that will start from fresh environment variables context ?
@@ -65,7 +65,7 @@ def set_env_permanently(env_varname, env_value):
     """
     case = check_platform_and_get_case()
     if case is WINDOWS:
-        from envswitch.win import set_env_variables_permanently_win
+        from envswitch.env_api_winimpl import set_env_variables_permanently_win
         set_env_variables_permanently_win({env_varname: env_value})
 
 

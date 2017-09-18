@@ -1,0 +1,13 @@
+no_proxy:
+  name: "No Proxy"
+  http_proxy: ""
+  https_proxy: ""
+  no_proxy: ""
+  curl_ca_bundle: ""
+
+proxy:
+  # name: "Proxy"
+  http_proxy: "http://localhost:8080"
+  https_proxy: "http://localhost:4443"
+  no_proxy: ""
+  curl_ca_bundle: ""
