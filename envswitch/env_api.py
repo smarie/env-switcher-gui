@@ -3,10 +3,8 @@ import platform
 from multiprocessing import Queue
 
 
-WINDOWS = 1
-
 # --not needed anymore
-#import multiprocessing as mp
+# import multiprocessing as mp
 # try:
 #     mp.set_start_method('spawn')
 # except RuntimeError:
@@ -69,6 +67,9 @@ def set_env_permanently(env_varname, env_value):
     if case is WINDOWS:
         from envswitch.win import set_env_variables_permanently_win
         set_env_variables_permanently_win({env_varname: env_value})
+
+
+WINDOWS = 1
 
 
 def check_platform_and_get_case() -> int:

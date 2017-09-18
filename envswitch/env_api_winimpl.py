@@ -7,9 +7,10 @@ import subprocess
 
 try:
     import win32gui, win32con
-except ImportError as e:
+except Exception as e:
     print('This requires to install pywin32')
     raise e
+
 
 def get_env_with_cmd_win(var_name):
     """
@@ -17,7 +18,7 @@ def get_env_with_cmd_win(var_name):
     :param var_name:
     :return:
     """
-    # --Works but the subprocess inherits from the parent environment...
+    # --Works but the subprocess inherits from the parent environment so it is not a truly independent observation
     # proc = subprocess.Popen('cmd /c set ' + var_name, stdout=subprocess.PIPE)
     # resbytestr = proc.stdout.read()
     # resstr = resbytestr.decode(encoding=sys.stdout.encoding)
@@ -28,10 +29,22 @@ def get_env_with_cmd_win(var_name):
     #     return None
 
     try:
-        path = r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
+        # try:
+        #     # first try at user environment variables
+        #     reg = ConnectRegistry(None, HKEY_CURRENT_USER)
+        #     path = r'Environment'
+        #     key = OpenKey(reg, path, 0, KEY_ALL_ACCESS)
+        #     value = query_value_win(key, var_name)
+        # except FileNotFoundError:
+        #     # close the first one
+        #     CloseKey(key)
+        #     CloseKey(reg)
+        # then try at system environment variables
         reg = ConnectRegistry(None, HKEY_LOCAL_MACHINE)
+        path = r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
         key = OpenKey(reg, path, 0, KEY_ALL_ACCESS)
-        return query_value_win(key, var_name)
+        value = query_value_win(key, var_name)
+        return value
     finally:
         CloseKey(key)
         CloseKey(reg)
@@ -61,7 +74,10 @@ def set_env_variables_permanently_win(key_value_pairs: Dict[str, Any]):
                 else:
                     DeleteValue(key, name)
 
-            win32gui.SendMessage(win32con.HWND_BROADCAST, win32con.WM_SETTINGCHANGE, 0, 'Environment')
+            # this hangs forever, see https://stackoverflow.com/questions/1951658/sendmessagehwnd-broadcast-hangs
+            # win32gui.SendMessage(win32con.HWND_BROADCAST, win32con.WM_SETTINGCHANGE, 0, 'Environment')
+            win32gui.SendMessageTimeout(win32con.HWND_BROADCAST, win32con.WM_SETTINGCHANGE, 0, 'Environment',
+                                        win32con.SMTO_ABORTIFHUNG, 1000)
 
     finally:
         CloseKey(key)
@@ -69,10 +85,24 @@ def set_env_variables_permanently_win(key_value_pairs: Dict[str, Any]):
 
 
 def query_value_win(key, name):
+    """
+    Reads a registry key. Throws a FileNotFoundError if it does not exist
+
+    :param key:
+    :param name:
+    :return:
+    """
     value, type_id = QueryValueEx(key, name)
     return value
 
+
 def show_win(key):
+    """
+    Print all registry values registered under key
+
+    :param key:
+    :return:
+    """
     for i in range(1024):
         try:
             n,v,t = EnumValue(key, i)
