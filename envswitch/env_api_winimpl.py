@@ -70,12 +70,19 @@ def set_env_variables_permanently_win(key_value_pairs: Dict[str, Any]):
                     warn('PATH can not be entirely changed. The value will be simply appended at the end.')
                     value = query_value_win(key, name) + ';' + value
                 if value:
+                    print("Setting ENV VARIABLE '" + name + "' to '" + value + "'")
                     SetValueEx(key, name, 0, REG_EXPAND_SZ, value)
                 else:
-                    DeleteValue(key, name)
+                    print("Deleting ENV VARIABLE '" + name + "'")
+                    try:
+                        DeleteValue(key, name)
+                    except FileNotFoundError:
+                        # ignore if already deleted
+                        pass
 
             # this hangs forever, see https://stackoverflow.com/questions/1951658/sendmessagehwnd-broadcast-hangs
             # win32gui.SendMessage(win32con.HWND_BROADCAST, win32con.WM_SETTINGCHANGE, 0, 'Environment')
+            print("Broadcasting change to other windows")
             win32gui.SendMessageTimeout(win32con.HWND_BROADCAST, win32con.WM_SETTINGCHANGE, 0, 'Environment',
                                         win32con.SMTO_ABORTIFHUNG, 1000)
 

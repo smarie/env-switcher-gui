@@ -4,6 +4,7 @@ from typing import Optional, Dict
 
 import yaml
 from autoclass import check_var
+from envswitch.env_api import set_env_variables_permanently
 
 from envswitch.yaml_ordered_dict import safe_load_ordered
 
@@ -28,13 +29,13 @@ class EnvConfig:
         for env_var, env_var_val in env_variables.items():
             check_var(env_var, var_types=str, var_name='environment variable name')
             check_var(env_var_val, var_types=str, var_name='environment variable value')
-        self.variables = copy(env_variables)
+        self.env_variables_dct = copy(env_variables)
 
         # the name is a special variable that should be removed from the list
-        self.name = self.variables.pop(_NAME) if _NAME in self.variables else self.id
+        self.name = self.env_variables_dct.pop(_NAME) if _NAME in self.env_variables_dct else self.id
 
     def __repr__(self):
-        return self.name + '[' + self.id + '] : ' + repr(self.variables)
+        return self.name + '[' + self.id + '] : ' + repr(self.env_variables_dct)
 
     def to_dict(self):
         """
@@ -43,8 +44,17 @@ class EnvConfig:
         """
         dct = OrderedDict()
         dct[_NAME] = self.name
-        dct.update(self.variables)
+        dct.update(self.env_variables_dct)
         return dct
+
+    def apply(self):
+        """
+        Applies this environment on the OS
+        :return:
+        """
+        print("Applying environment '" + self.name + "' (" + self.id + ")")
+        set_env_variables_permanently(self.env_variables_dct)
+        print("Applying environment DONE")
 
 
 class GlobalEnvsConfig:
@@ -94,23 +104,16 @@ class GlobalEnvsConfig:
         :return:
         """
         conf = safe_load_ordered(file)
-
         res = GlobalEnvsConfig(conf)
-        assert type(res) == GlobalEnvsConfig
+
+        # safety: make sure the result is an instance of GlobalEnvsConfig
+        assert isinstance(res, GlobalEnvsConfig)
+
         return res
 
-    def to_yaml(self):
+    def to_yaml(self, stream=None):
         """
         Dumps this configuration into a yaml str
         :return:
         """
-        return yaml.dump(self.to_dict())
-
-    def to_yaml_file(self, file):
-        """
-        Dumps this configuration into a yaml file
-        :param file:
-        :return:
-        """
-        # with open(file_path, 'w') as f:
-        yaml.dump(self.to_dict(), file)
+        return yaml.dump(self.to_dict(), stream=stream)
