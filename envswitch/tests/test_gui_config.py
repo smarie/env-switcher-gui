@@ -3,7 +3,7 @@ import tempfile
 
 import pytest
 
-from envswitch.gui_config import GlobalEnvsConfig
+from envswitch.env_config import GlobalEnvsConfig
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -22,7 +22,7 @@ def test_load_gui_config(config_file_name: str):
     try:
         # dump to file
         with open(fpath, mode='w') as f:
-            conf.to_yaml_file(f)
+            conf.to_yaml(f)
 
         # read from file
         with open(fpath, mode='r') as f:

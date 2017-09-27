@@ -10,6 +10,7 @@ from multiprocessing import Queue
 # except RuntimeError:
 #     # normal the second time this is called (or in the spawned processes)
 #     pass
+from typing import Dict, Any
 
 
 def print_external_env_var(var_name):
@@ -55,6 +56,9 @@ def get_external_env_var(var_name):
     # return res
 
 
+WINDOWS = 1
+
+
 def set_env_permanently(env_varname, env_value):
     """
     Similar to os.setenv(var_name, value) but performs a permanent change, not just for the current process.
@@ -63,13 +67,22 @@ def set_env_permanently(env_varname, env_value):
     :param env_value:
     :return:
     """
+    set_env_variables_permanently({env_varname: env_value})
+
+
+def set_env_variables_permanently(key_value_pairs: Dict[str, Any]):
+    """
+    Similar to set_env_permanently but for a dictionary of environment variable names/value
+    :param key_value_pairs:
+    :return:
+    """
     case = check_platform_and_get_case()
     if case is WINDOWS:
         from envswitch.env_api_winimpl import set_env_variables_permanently_win
-        set_env_variables_permanently_win({env_varname: env_value})
-
-
-WINDOWS = 1
+        set_env_variables_permanently_win(key_value_pairs)
+    else:
+        raise NotImplementedError('Code for this platform is missing in envswitch, please create an issue '
+                                  'on the github project page and optionally propose a pull request')
 
 
 def check_platform_and_get_case() -> int:
