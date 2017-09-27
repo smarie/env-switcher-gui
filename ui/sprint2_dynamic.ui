@@ -74,7 +74,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QDialogButtonBox" name="okCancelApplyButtonBox">
+     <widget class="QDialogButtonBox" name="mainButtonBox">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>

@@ -43,8 +43,11 @@ def get_env_with_cmd_win(var_name):
         reg = ConnectRegistry(None, HKEY_LOCAL_MACHINE)
         path = r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
         key = OpenKey(reg, path, 0, KEY_ALL_ACCESS)
-        value = query_value_win(key, var_name)
-        return value
+        try:
+            value = query_value_win(key, var_name)
+            return value
+        except FileNotFoundError:
+            return ''
     finally:
         CloseKey(key)
         CloseKey(reg)
