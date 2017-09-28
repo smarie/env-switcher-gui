@@ -11,27 +11,29 @@ def test_env_switch():
     :return:
     """
 
-    # child_env = os.environ.copy()
+    # (1) get and save initial value
+    env_var = 'path'
+    init_val = getenv(env_var)
 
-    # just for tests
-    env_http_proxy = 'http_proxy'
-
-    # save the initial value
-    init_val = getenv(env_http_proxy)
     # print the initial value
-    es.print_external_env_var(env_http_proxy)
-    assert es.get_external_env_var(env_http_proxy) == init_val
+    print(env_var + '=' + init_val)
+    es.print_external_env_var(env_var)
 
-    # input("Press Enter to continue and change the HTTP_PROXY...")
+    # assert getting from external provides the same value
+    assert es.get_external_env_var(env_var) == init_val
 
-    # set a new value permanently
-    es.set_env_permanently(env_http_proxy, 'blah')
-    es.print_external_env_var(env_http_proxy)
-    assert es.get_external_env_var(env_http_proxy) == 'blah'
+    # (2) set a new value permanently
+    es.set_env_permanently(env_var, 'blah')
 
-    # input("Press Enter to continue and change back the HTTP_PROXY...")
+    # print the changed value and assert
+    es.print_external_env_var(env_var)
+    assert es.get_external_env_var(env_var) == 'blah'
+    # TODO later version
+    # assert os.getenv(env_http_proxy) == 'blah'
 
-    # set a new value permanently
-    es.set_env_permanently(env_http_proxy, init_val)
-    es.print_external_env_var(env_http_proxy)
-    assert es.get_external_env_var(env_http_proxy) == init_val
+    # (3) set to initial value permanently
+    es.set_env_permanently(env_var, init_val)
+
+    # get and assert
+    es.print_external_env_var(env_var)
+    assert es.get_external_env_var(env_var) == init_val
