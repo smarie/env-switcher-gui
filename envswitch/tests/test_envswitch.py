@@ -11,8 +11,10 @@ def test_env_switch():
     :return:
     """
 
+    # this environment variable needs to have been set before the test runs
+    env_var = 'FOO'
+
     # (1) get and save initial value
-    env_var = 'path'
     init_val = getenv(env_var)
 
     # print the initial value
