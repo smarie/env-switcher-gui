@@ -16,7 +16,7 @@ In addition, `envswitch` allows users to save environment definition files as `.
 
 You may install the envswitch app using the following installers:
 
- * For windows [this msi](todo)
+ * For windows [this msi](https://github.com/smarie/env-switcher-gui/releases/download/1.0.0/envswitch-1.0.0-amd64.msi)
 
 ### Launch envswitch app
 
