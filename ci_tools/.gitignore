@@ -1,5 +1,8 @@
-# private key
-github_travis_rsa*
+# private key - NEVER commit !
+github_travis_rsa
+
+# public key - no use to commit, for github settings only
+github_travis_rsa.pub
 
 # coverage results
 .coverage
