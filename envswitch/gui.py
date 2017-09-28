@@ -13,10 +13,7 @@ from copy import deepcopy
 
 from envswitch.env_config import GlobalEnvsConfig
 from envswitch.qt_design import Ui_MainWindow
-
-
-import pkg_resources  # part of setuptools
-_app_version = pkg_resources.require("envswitch")[0].version
+from envswitch.utils import get_version
 
 
 class CouldNotRestoreStateException(Exception):
@@ -662,7 +659,7 @@ def main(headless: bool=False, env_id: str=None, config_file_path: str=None):
     :param config_file_path:
     :return:
     """
-    print('*** ENVSWITCH <' + _app_version + '> ***')
+    print('*** ENVSWITCH <' + get_version() + '> ***')
 
     # create the application (the frame around everything), passing in the possible commandline arguments
     app = EnvSwitcherApp(headless, sys.argv[1:], env_id=env_id, config_file_path=config_file_path)

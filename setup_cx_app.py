@@ -5,6 +5,8 @@ import importlib.util
 import sys
 # DO NOT REMOVE setuptools IMPORT: IT PREVENTS AN ERROR SEE https://github.com/anthony-tuininga/cx_Freeze/issues/308
 import setuptools
+from cx_app_unpack_eggs import unpackEgg
+from envswitch.utils import version_file_cx_freeze
 from setuptools_scm import version_from_scm
 from cx_Freeze import setup, Executable
 from PyQt5.QtWidgets import QApplication
@@ -16,11 +18,13 @@ from PyQt5.QtCore import QLibraryInfo
 
 # First import setup.py so that we can get all description, metadata, etc.
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+print('Importing definitions from setup.py...')
 spec = importlib.util.spec_from_file_location("setup", os.path.join(THIS_DIR, "setup.py"))
 setup_py = importlib.util.module_from_spec(spec)
 tmp = sys.argv  # temporarily store the sys.argv to replace them during this call
-sys.argv = [tmp[0], '--quiet --dry-run clean']  # performs nothing, simply loads the env_variables_dct defined in the script
+sys.argv = [tmp[0].replace('setup_cx_app.py', 'setup.py'), '--quiet', '--dry-run', 'clean']  # performs nothing, simply loads the variables defined in the script
 spec.loader.exec_module(setup_py)
+print('DONE, now executing setup_cx_app.py...')
 sys.argv = tmp
 
 # GUI applications require a different base on Windows (the default is for a
@@ -38,18 +42,26 @@ qt_platforms_folder = os.path.join(plugins_path, 'platforms')
 # so we included the latter in the sources just in case..
 qt_platforms_folder = os.path.join(THIS_DIR, 'qt_resources', 'platforms')
 
+import pkg_resources  # part of setuptools
+_app_version = pkg_resources.require("envswitch")[0].version
+with open('./' + version_file_cx_freeze, 'wt') as f:
+    f.write(_app_version)
+
 # Dependencies are automatically detected, but it might need fine tuning.
+# unpackEgg('setuptools', 'eggs_tmp')  # setuptools contains 'pkg_resources'
 options = {
     # see http://cx-freeze.readthedocs.io/en/latest/distutils.html#build-exe
     'build_exe': {
         'includes': [],
-        'packages': ["os"],
+        'packages': ['os'],  #, 'pkg_resources'],
         'excludes': ['*'],
         "include_files": [# (os.path.join(THIS_DIR, 'qt_resources', 'qt.conf'), 'qt.conf'),  not needed, default is ok
                           (qt_platforms_folder, 'platforms'),  # in order to override the one gathered by cx_Freeze
                           'LICENSE',
+                          '_TMP_VERSION_',
                           'README.md'],  # relative paths only
         # "include_msvcr"=True
+        # 'path': sys.path + ['eggs_tmp']
     }
 }
 

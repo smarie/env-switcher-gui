@@ -90,3 +90,8 @@ ENV/
 
 # pycharm
 .idea/
+
+# envswitch
+_TMP_VERSION
+eggs_tmp/
+eggs.pth
