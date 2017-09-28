@@ -33,5 +33,13 @@ Then on Linux (does not work on windows, https://github.com/travis-ci/travis-ci/
 	> travis login 	
 	> travis encrypt-file -r smarie/<repo-name> <your_key>   (DO NOT USE --add option since it will remove all comments in your travis.yml file!)
 
-6) follow the instructions on screen: you have to copy the line starting with 'openssl ...' to your travis.yml file. 
-You have to modify the relative path to the generated file by adding 'ci_tools/' in front of 'github_travis_rsa_...enc'.
+6) follow the instructions on screen :
+	- copy the line starting with 'openssl ...' to your travis.yml file. 
+	- modify the relative path to the generated file by adding 'ci_tools/' in front of 'github_travis_rsa_...enc'.
+	- git add the generated file 'github_travis_rsa_...enc' but DO NOT ADD the private key
+
+7) Finally encrypt the PyPi password:
+
+	> travis login
+	> travis encrypt -r smarie/<repo-name> <pypi_password>
+	- copy the resulting string in the travis.yml file under deploy > password > secure
