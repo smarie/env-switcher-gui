@@ -1,10 +1,9 @@
-site_name: autoclass
+site_name: envswitch
 # site_description: 'A short description of my project'
-repo_url: https://github.com/smarie/python-autoclass
+repo_url: https://github.com/smarie/env-switcher-gui
 pages:
     - Home: index.md
-    - Usage details: usage.md
-    - Validators list: validators.md
+    #- Usage details: usage.md
     - Changelog: changelog.md
 theme: material  # readthedocs  mkdocs
 

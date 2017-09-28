@@ -1,0 +1,1 @@
+### 1.0.0 - First public working version of envswitcher
