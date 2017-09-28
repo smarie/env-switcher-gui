@@ -42,10 +42,14 @@ qt_platforms_folder = os.path.join(plugins_path, 'platforms')
 # so we included the latter in the sources just in case..
 qt_platforms_folder = os.path.join(THIS_DIR, 'qt_resources', 'platforms')
 
-import pkg_resources  # part of setuptools
-_app_version = pkg_resources.require("envswitch")[0].version
+# # you should pip install -e . before running this
+# import pkg_resources  # part of setuptools
+# _app_version = pkg_resources.require("envswitch")[0].version
+# we have to manually create a version number compliant with cx_Freeze (no letters, just numbers)
+my_version = version_from_scm(THIS_DIR)
+THIS_TAG_OR_NEXT_TAG_VERSION = my_version.format_with("{tag}")
 with open('./' + version_file_cx_freeze, 'wt') as f:
-    f.write(_app_version)
+    f.write(THIS_TAG_OR_NEXT_TAG_VERSION)
 
 # Dependencies are automatically detected, but it might need fine tuning.
 # unpackEgg('setuptools', 'eggs_tmp')  # setuptools contains 'pkg_resources'
@@ -74,10 +78,6 @@ executables = [
                # icon=
                )
 ]
-
-# we have to manually create a version number compliant with cx_Freeze (no letters, just numbers)
-my_version = version_from_scm(THIS_DIR)
-THIS_TAG_OR_NEXT_TAG_VERSION = my_version.format_with("{tag}")
 
 import PyQt5
 
