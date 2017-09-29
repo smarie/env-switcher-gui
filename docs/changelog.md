@@ -1,3 +1,5 @@
+### 1.1.0 - Attempt to fix a ghost reference in PyPi 1.0.12
+
 ### 1.0.1 - First version with automatic release for Windows 32/64 and PyPi
 
 * Appveyor now deploys the .msi release
