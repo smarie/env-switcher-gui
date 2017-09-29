@@ -14,9 +14,10 @@ This is a kind of MVC pattern where
 * the **View** is made of two parts: the static one `UI_MainWindow`, generated with qt designer, and the dynamic one `EnvSwitcherView`. It deals with the various widgets and popups.
 * the **Model** is provided by `EnvSwitcherState` and deals with the configuration files and persistence.
 * the **Controller**, or the **Application**, is provided by `EnvSwitcherApp` and provides the Qt application boilerplate as well as persistence of the application settings (recent edited files).
- 
-![EnvswitchDesign](docs/DesignOverview.png) 
- 
+
+![EnvswitchDesign](https://raw.githubusercontent.com/smarie/env-switcher-gui/master/docs/DesignOverview.png) 
+
+
 ### .py code generation
 
 *Prerequisite: install PyQt5, but warning: using pip to install pyqt in anaconda root may compromise your global conda environment (see [here](https://github.com/ContinuumIO/anaconda-issues/issues/1970))*

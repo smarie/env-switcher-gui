@@ -3,7 +3,7 @@ import sys
 import os
 
 
-version_file_cx_freeze = '_TMP_VERSION_'
+version_file_cx_freeze = '_VERSION_'
 
 
 def get_version():

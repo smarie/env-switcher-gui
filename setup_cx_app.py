@@ -62,7 +62,7 @@ options = {
         "include_files": [# (os.path.join(THIS_DIR, 'qt_resources', 'qt.conf'), 'qt.conf'),  not needed, default is ok
                           (qt_platforms_folder, 'platforms'),  # in order to override the one gathered by cx_Freeze
                           'LICENSE',
-                          '_TMP_VERSION_',
+                          version_file_cx_freeze,
                           'README.md'],  # relative paths only
         # "include_msvcr"=True
         # 'path': sys.path + ['eggs_tmp']
