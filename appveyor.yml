@@ -30,7 +30,8 @@ install:
   - cinst pandoc
   - pandoc -v
 
-build: off
+build:
+  - "%PYTHON%\\python.exe -m pip install ."
 
 test_script:
   # Put your test command here.
