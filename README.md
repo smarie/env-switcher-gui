@@ -64,12 +64,37 @@ pip install -r ci_tools/requirements-setup.txt
 
 ### Standalone app
 
-To build the executable distribution there is a separate setup file for cx_freeze:
+To build the executable distribution there is a separate setup file for cx_freeze.
+
+The following command builds a distribution folder under `build/` containing all resources needed and an envswitch executable for you platform. 
 
 ```bash
 python setup_cx_app.py build
 ```
 
+The following command builds a .msi distribution for windows
+
+```bash
+python setup_cx_app.py bdist_msi
+```
+
+The following command builds a RPM distribution for linux
+
+```bash
+python setup_cx_app.py bdist_rpm
+```
+
+The following command builds a .app distribution for mac
+
+```bash
+python setup_cx_app.py bdist_mac
+```
+
+The following command builds a DMG disk image distribution for mac
+
+```bash
+python setup_cx_app.py bdist_dmg
+```
 
 
 ## Generating the documentation page
