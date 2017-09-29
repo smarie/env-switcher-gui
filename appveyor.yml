@@ -26,12 +26,10 @@ install:
   - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-test.txt"
   - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-report.txt"
   - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-doc.txt"
-
-build: off
-
-before_test:
   - cinst pandoc
   - pandoc -v
+
+build: off
 
 test_script:
   # Put your test command here.

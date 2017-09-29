@@ -50,8 +50,8 @@ if my_version is not None:
     with open('./' + version_file_cx_freeze, 'wt') as f:
         f.write(THIS_TAG_OR_NEXT_TAG_VERSION)
 else:
-    print('WARNING: the version will not be retrieved from git but from the previously created _VERSION_ file. '
-          'This is ok if you ran python setup_cx_app.py build beforehand')
+    print('WARNING: the version will not be retrieved from git but from the previously created '
+          + version_file_cx_freeze + ' file. This is ok if you ran python setup_cx_app.py build beforehand')
     THIS_TAG_OR_NEXT_TAG_VERSION = get_version()
 
 # Dependencies are automatically detected, but it might need fine tuning.

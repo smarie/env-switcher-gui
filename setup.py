@@ -16,7 +16,7 @@ INSTALL_REQUIRES = ['pyyaml', 'click', 'autoclass']  # we cannot include 'PyQt>=
 DEPENDENCY_LINKS = []
 SETUP_REQUIRES = ['pytest-runner', 'setuptools_scm', 'pypandoc', 'pandoc']
 TESTS_REQUIRE = ['pytest', 'pytest-logging', 'pytest-cov']
-EXTRAS_REQUIRE = {':sys_platform == "win32"': ['pywin32'],  #    'platform_system=="Windows"'
+EXTRAS_REQUIRE = {':sys_platform == "win32"': ['pypiwin32'],  #    'platform_system=="Windows"'
                   #':"linux" in sys_platform': ['pyxdg']    # 'platform_system=="Linux"'
                  }
 
