@@ -5,12 +5,9 @@ import importlib.util
 import sys
 # DO NOT REMOVE setuptools IMPORT: IT PREVENTS AN ERROR SEE https://github.com/anthony-tuininga/cx_Freeze/issues/308
 import setuptools
-from cx_app_unpack_eggs import unpackEgg
-from envswitch.utils import version_file_cx_freeze
+from envswitch.utils import version_file_cx_freeze, get_version
 from setuptools_scm import version_from_scm
 from cx_Freeze import setup, Executable
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QLibraryInfo
 
 # To build
 # - the executable distribution, do:  python setup_cx_app.py build   >> result is in build/exe.<target>/
@@ -48,9 +45,14 @@ qt_platforms_folder = os.path.join(THIS_DIR, 'qt_resources', 'platforms')
 # _app_version = pkg_resources.require("envswitch")[0].version
 # we have to manually create a version number compliant with cx_Freeze (no letters, just numbers)
 my_version = version_from_scm(THIS_DIR)
-THIS_TAG_OR_NEXT_TAG_VERSION = my_version.format_with("{tag}")
-with open('./' + version_file_cx_freeze, 'wt') as f:
-    f.write(THIS_TAG_OR_NEXT_TAG_VERSION)
+if my_version is not None:
+    THIS_TAG_OR_NEXT_TAG_VERSION = my_version.format_with("{tag}")
+    with open('./' + version_file_cx_freeze, 'wt') as f:
+        f.write(THIS_TAG_OR_NEXT_TAG_VERSION)
+else:
+    print('WARNING: the version will not be retrieved from git but from the previously created _VERSION_ file. '
+          'This is ok if you ran python setup_cx_app.py build beforehand')
+    THIS_TAG_OR_NEXT_TAG_VERSION = get_version()
 
 # Dependencies are automatically detected, but it might need fine tuning.
 # unpackEgg('setuptools', 'eggs_tmp')  # setuptools contains 'pkg_resources'

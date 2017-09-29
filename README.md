@@ -72,19 +72,19 @@ The following command builds a distribution folder under `build/` containing all
 python setup_cx_app.py build
 ```
 
-The following command builds a .msi distribution for windows
+The following command builds a .msi distribution for windows in `dist/`
 
 ```bash
 python setup_cx_app.py bdist_msi
 ```
 
-The following command builds a RPM distribution for linux
+The following command builds a RPM distribution for linux in `dist/`
 
 ```bash
 python setup_cx_app.py bdist_rpm
 ```
 
-The following command builds a .app distribution for mac
+The following command builds a .app distribution for mac in `dist/`
 
 ```bash
 python setup_cx_app.py bdist_mac
