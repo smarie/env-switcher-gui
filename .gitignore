@@ -92,7 +92,7 @@ ENV/
 .idea/
 
 # envswitch
-_VERSION_
+VERSION__
 eggs_tmp/
 eggs.pth
 site/
