@@ -40,6 +40,9 @@ test_script:
   # Note that you must use the environment variable %PYTHON% to refer to
   # the interpreter you're using - Appveyor does not do anything special
   # to put the Python version you want to use on PATH.
+
+  # the test requires an environment to exist beforehand
+  - set FOO=toto
   - "%PYTHON%\\python.exe setup.py test"
 
 after_test:

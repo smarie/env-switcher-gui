@@ -41,10 +41,12 @@ install:
 # - pip install coveralls  # this is an alternative to codecov
 
 script:
-#  - coverage run tests.py
+# - coverage run tests.py
   - pip install .
 # ***tests: none for now since travis is linux***
-#  - pytest --junitxml=reports/junit/junit.xml --html=reports/junit/report.html --cov-report term-missing --cov=./envswitch -v envswitch/tests/
+  # the test requires an environment to exist beforehand
+  # - export FOO=toto
+  # - pytest --junitxml=reports/junit/junit.xml --html=reports/junit/report.html --cov-report term-missing --cov=./envswitch -v envswitch/tests/
 
 after_success:
 # ***packaging for releases***
