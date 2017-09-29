@@ -488,16 +488,15 @@
                 
                 
                 <h1 id="envswitch">envswitch<a class="headerlink" href="#envswitch" title="Permanent link">&para;</a></h1>
-<p><a href="https://travis-ci.org/smarie/env-switcher-gui"><img alt="Build Status" src="https://travis-ci.org/smarie/env-switcher-gui.svg?branch=master" /></a> <a href="https://smarie.github.io/env-switcher-gui/junit/report.html"><img alt="Tests Status" src="https://smarie.github.io/env-switcher-gui/junit/junit-badge.svg?dummy=8484744" /></a> <a href="https://codecov.io/gh/smarie/env-switcher-gui"><img alt="codecov" src="https://codecov.io/gh/smarie/env-switcher-gui/branch/master/graph/badge.svg" /></a> <a href="https://smarie.github.io/env-switcher-gui/"><img alt="Documentation" src="https://img.shields.io/badge/docs-latest-blue.svg" /></a> <a href="https://pypi.python.org/pypi/envswitch/"><img alt="PyPI" src="https://img.shields.io/badge/PyPI-envswitch-blue.svg" /></a></p>
+<p><a href="https://ci.appveyor.com/project/smarie/env-switcher-gui"><img alt="Windows Build" src="https://ci.appveyor.com/api/projects/status/15y7mvbqi4qu2v4y?svg=true" /></a> <a href="https://travis-ci.org/smarie/env-switcher-gui"><img alt="Linux build" src="https://travis-ci.org/smarie/env-switcher-gui.svg?branch=master" /></a> <a href="https://smarie.github.io/env-switcher-gui/"><img alt="Documentation" src="https://img.shields.io/badge/docs-latest-blue.svg" /></a> <a href="https://pypi.python.org/pypi/envswitch/"><img alt="PyPI" src="https://img.shields.io/badge/PyPI-envswitch-blue.svg" /></a></p>
 <p><code>envswitch</code> provides a very simple GUI and CLI to easily switch between environments. </p>
-<p>A typical use case is when you sometimes work behind a network proxy and sometimes not: you have to often change the values of your <code>http_proxy</code>, <code>https_proxy</code>, <code>no_proxy</code> and <code>curl_ca_bundle</code> environment variables as explained <a href="https://github.com/smarie/develop-behind-proxy">here</a>. <code>envswitch</code> provides you with a very convenient way to remember <strong>sets of environment variables</strong> with associated values, and to apply a given set (so-called 'environment') at any time in a mouse click or a terminal command. </p>
+<p><img alt="ScreenCap" src="./Example.png" /></p>
+<p>A typical use case is when you sometimes work behind a network proxy and sometimes not: you have to often change the values of your <code>http_proxy</code>, <code>https_proxy</code>, <code>no_proxy</code> and <code>curl_ca_bundle</code> environment variables as explained <a href="https://github.com/smarie/develop-behind-proxy">here</a>. </p>
+<p><code>envswitch</code> provides you with a very convenient way to remember <strong>sets of environment variables</strong> with associated values, and to apply a given set (so-called 'environment') at any time in a mouse click or a terminal command. </p>
 <p>In addition, <code>envswitch</code> allows users to save environment definition files as <code>.yaml</code>, so as to ease the process of sharing such files among developers.</p>
 <h2 id="standalone-desktop-app">Standalone desktop app<a class="headerlink" href="#standalone-desktop-app" title="Permanent link">&para;</a></h2>
 <h3 id="install-envswitch-app">Install envswitch app<a class="headerlink" href="#install-envswitch-app" title="Permanent link">&para;</a></h3>
-<p>You may install the envswitch app using the following installers:</p>
-<ul>
-<li>For windows <a href="https://github.com/smarie/env-switcher-gui/releases/download/1.0.0/envswitch-1.0.0-amd64.msi">this msi</a></li>
-</ul>
+<p>You may install the envswitch app using the installers provided in the <a href="https://github.com/smarie/env-switcher-gui/releases/">releases</a> page.</p>
 <h3 id="launch-envswitch-app">Launch envswitch app<a class="headerlink" href="#launch-envswitch-app" title="Permanent link">&para;</a></h3>
 <p>Once the standalone app is installed, you simply have to launch the executable file (<code>envswitch.exe</code> on windows, <code>envswitch</code> on linux). </p>
 <h2 id="for-python-developers-envswitch-wheel">For python developers: envswitch wheel<a class="headerlink" href="#for-python-developers-envswitch-wheel" title="Permanent link">&para;</a></h2>
@@ -528,6 +527,21 @@
 </ul>
 <h2 id="example-usage">Example usage<a class="headerlink" href="#example-usage" title="Permanent link">&para;</a></h2>
 <h3 id="configuration-file">Configuration file<a class="headerlink" href="#configuration-file" title="Permanent link">&para;</a></h3>
+<p>A <code>.yml</code> or <code>.yaml</code> configuration file is needed to use the tool. The format is really simple: it is a yaml file containing a list of named environments (<code>env_a</code> and <code>env_b</code> below), where each environment contains a list of environment variable names and values:</p>
+<div class="codehilite"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">env_a</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Hello</span>
+  <span class="l l-Scalar l-Scalar-Plain">foo</span><span class="p p-Indicator">:</span> <span class="s">&#39;hello&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">bar</span><span class="p p-Indicator">:</span> <span class="s">&#39;world&#39;</span>
+
+<span class="l l-Scalar l-Scalar-Plain">env_b</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Goodbye</span>
+  <span class="l l-Scalar l-Scalar-Plain">foo</span><span class="p p-Indicator">:</span> <span class="s">&#39;goodbye&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">bar</span><span class="p p-Indicator">:</span> <span class="s">&#39;world&#39;</span>
+</pre></div>
+
+
+<p>An optional special variable named 'name', can be provided in order to customize the name of the environment in the GUI. Note that you can provide any number of environments, and they do not necessarily have to contain the same variables.</p>
+<p>Here is a <a href="./network_config.yml">template file</a> for network configuration, to switch between proxy and no proxy states (see <a href="https://github.com/smarie/develop-behind-proxy">here</a> for details).</p>
 <h3 id="gui">GUI<a class="headerlink" href="#gui" title="Permanent link">&para;</a></h3>
 <p>The following screen capture shows the GUI loaded with a network proxy switching configuration file. </p>
 <p><img alt="ScreenCap" src="./Example.png" /></p>
