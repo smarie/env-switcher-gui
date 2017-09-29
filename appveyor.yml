@@ -37,15 +37,15 @@ test_script:
   # Note that you must use the environment variable %PYTHON% to refer to
   # the interpreter you're using - Appveyor does not do anything special
   # to put the Python version you want to use on PATH.
-  - "build.cmd %PYTHON%\\python.exe setup.py test"
+  - "%PYTHON%\\python.exe setup.py test"
 
 after_test:
   # ***packaging for releases***
   # source and wheel for PyPi >> this is already done in travis
   # - "build.cmd %PYTHON%\\python.exe setup.py sdist bdist_wheel"
   # installer for github release
-  - "build.cmd %PYTHON%\\python.exe setup_cx_app.py build"
-  - "build.cmd %PYTHON%\\python.exe setup_cx_app.py bdist_msi"
+  - "%PYTHON%\\python.exe setup_cx_app.py build"
+  - "%PYTHON%\\python.exe setup_cx_app.py bdist_msi"
   # ***reporting >> this is already done in travis ***
   # ***documentation >> this is already done in travis ***
 
