@@ -26,6 +26,7 @@ install:
   - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-test.txt"
   - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-report.txt"
   - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-doc.txt"
+  - "%PYTHON%\\python.exe -m pip install pypiwin32"  # unfortunately declaring it in the extra does not use pip
   - cinst pandoc
   - pandoc -v
 
