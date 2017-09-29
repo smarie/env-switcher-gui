@@ -49,7 +49,7 @@ script:
 after_success:
 # ***packaging for releases***
   - python setup_cx_app.py build
-  - python setup_cx_app.py bdist_rpm  # bdist_msi bdist_mac bdist_dmg
+  - python setup_cx_app.py build bdist_rpm  # the build is done again to generate the _VERSION_ bdist_msi bdist_mac bdist_dmg
   # convert the rpm into a deb and move the generated file in dist/ folder
   - find dist/ -type f -iname '*.rpm' -exec sudo alien -d {} \;
   - find . -type f -iname '*.deb' -exec mv {} dist/ \;
