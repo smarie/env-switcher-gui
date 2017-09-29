@@ -1,11 +1,14 @@
 # envswitch
 
-[![Build Status](https://travis-ci.org/smarie/env-switcher-gui.svg?branch=master)](https://travis-ci.org/smarie/env-switcher-gui) [![Tests Status](https://smarie.github.io/env-switcher-gui/junit/junit-badge.svg?dummy=8484744)](https://smarie.github.io/env-switcher-gui/junit/report.html) [![codecov](https://codecov.io/gh/smarie/env-switcher-gui/branch/master/graph/badge.svg)](https://codecov.io/gh/smarie/env-switcher-gui) [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://smarie.github.io/env-switcher-gui/) [![PyPI](https://img.shields.io/badge/PyPI-envswitch-blue.svg)](https://pypi.python.org/pypi/envswitch/)
-
+[![Windows Build](https://ci.appveyor.com/api/projects/status/15y7mvbqi4qu2v4y?svg=true)](https://ci.appveyor.com/project/smarie/env-switcher-gui) [![Linux build](https://travis-ci.org/smarie/env-switcher-gui.svg?branch=master)](https://travis-ci.org/smarie/env-switcher-gui) [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://smarie.github.io/env-switcher-gui/) [![PyPI](https://img.shields.io/badge/PyPI-envswitch-blue.svg)](https://pypi.python.org/pypi/envswitch/)
 
 `envswitch` provides a very simple GUI and CLI to easily switch between environments. 
 
-A typical use case is when you sometimes work behind a network proxy and sometimes not: you have to often change the values of your `http_proxy`, `https_proxy`, `no_proxy` and `curl_ca_bundle` environment variables as explained [here](https://github.com/smarie/develop-behind-proxy). `envswitch` provides you with a very convenient way to remember **sets of environment variables** with associated values, and to apply a given set (so-called 'environment') at any time in a mouse click or a terminal command. 
+![ScreenCap](./Example.png)
+
+A typical use case is when you sometimes work behind a network proxy and sometimes not: you have to often change the values of your `http_proxy`, `https_proxy`, `no_proxy` and `curl_ca_bundle` environment variables as explained [here](https://github.com/smarie/develop-behind-proxy). 
+
+`envswitch` provides you with a very convenient way to remember **sets of environment variables** with associated values, and to apply a given set (so-called 'environment') at any time in a mouse click or a terminal command. 
 
 In addition, `envswitch` allows users to save environment definition files as `.yaml`, so as to ease the process of sharing such files among developers.
 
@@ -14,9 +17,7 @@ In addition, `envswitch` allows users to save environment definition files as `.
 
 ### Install envswitch app
 
-You may install the envswitch app using the following installers:
-
- * For windows [this msi](https://github.com/smarie/env-switcher-gui/releases/download/1.0.0/envswitch-1.0.0-amd64.msi)
+You may install the envswitch app using the installers provided in the [releases](https://github.com/smarie/env-switcher-gui/releases/) page.
 
 ### Launch envswitch app
 
@@ -60,6 +61,23 @@ Then,simply install as usual with pip:
 
 ### Configuration file
 
+A `.yml` or `.yaml` configuration file is needed to use the tool. The format is really simple: it is a yaml file containing a list of named environments (`env_a` and `env_b` below), where each environment contains a list of environment variable names and values:
+
+```yaml
+env_a:
+  name: Hello
+  foo: 'hello'
+  bar: 'world'
+
+env_b:
+  name: Goodbye
+  foo: 'goodbye'
+  bar: 'world'
+```
+
+An optional special variable named 'name', can be provided in order to customize the name of the environment in the GUI. Note that you can provide any number of environments, and they do not necessarily have to contain the same variables.
+
+Here is a [template file](network_config.yml) for network configuration, to switch between proxy and no proxy states (see [here](https://github.com/smarie/develop-behind-proxy) for details).
 
 ### GUI
 

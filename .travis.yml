@@ -44,6 +44,7 @@ script:
 # - coverage run tests.py
   - pip install .
 # ***tests: none for now since travis is linux***
+# TODO when done add the badges to readme and index [![Tests Status](https://smarie.github.io/env-switcher-gui/junit/junit-badge.svg?dummy=8484744)](https://smarie.github.io/env-switcher-gui/junit/report.html) [![codecov](https://codecov.io/gh/smarie/env-switcher-gui/branch/master/graph/badge.svg)](https://codecov.io/gh/smarie/env-switcher-gui)
   # - pytest --junitxml=reports/junit/junit.xml --html=reports/junit/report.html --cov-report term-missing --cov=./envswitch -v envswitch/tests/
 
 after_success:
