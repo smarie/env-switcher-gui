@@ -96,3 +96,4 @@ _VERSION_
 eggs_tmp/
 eggs.pth
 site/
+reports/
