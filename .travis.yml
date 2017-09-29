@@ -28,6 +28,8 @@ before_install:
   - sudo apt-get install pandoc
   - sudo apt-get install ant
   - sudo apt-get install ant-optional
+  - sudo apt-get install rpm
+  - sudo apt-get install alien
 
 install:
   - pip install -r ci_tools/requirements-setup.txt
@@ -48,6 +50,9 @@ after_success:
 # ***packaging for releases***
   - python setup_cx_app.py build
   - python setup_cx_app.py bdist_rpm  # bdist_msi bdist_mac bdist_dmg
+  # convert the rpm into a deb and move the generated file in dist/ folder
+  - find dist/ -type f -iname '*.rpm' -exec sudo alien -d {} \;
+  - find . -type f -iname '*.deb' -exec mv {} dist/ \;
 # ***reporting***
 #  - junit2html junit.xml testrun.html  output is really not nice
   - ant -f ci_tools/generate-junit-html.xml  # generates the html for the test results. Actually we dont use it anymore
