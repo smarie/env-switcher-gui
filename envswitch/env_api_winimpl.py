@@ -18,7 +18,7 @@ def get_env_with_cmd_win(var_name):
     :param var_name:
     :return:
     """
-    # --Works but the subprocess inherits from the parent environment so it is not a truly independent observation
+    # --Works but the subprocess inherits from the parent environment so it is NOT a truly independent observation
     # proc = subprocess.Popen('cmd /c set ' + var_name, stdout=subprocess.PIPE)
     # resbytestr = proc.stdout.read()
     # resstr = resbytestr.decode(encoding=sys.stdout.encoding)
@@ -47,6 +47,8 @@ def get_env_with_cmd_win(var_name):
             value = query_value_win(key, var_name)
             return value
         except FileNotFoundError:
+            warn('Environment variable not found in WINDOWS HKEY_LOCAL_MACHINE. Note that this program does not '
+                 'interact with user-scope environment variables')
             return ''
     finally:
         CloseKey(key)
@@ -70,6 +72,7 @@ def set_env_variables_permanently_win(key_value_pairs: Dict[str, Any]):
         else:
             for name, value in key_value_pairs.items():
                 if name.upper() == 'PATH':
+                    # TODO maybe remove this security ?
                     warn('PATH can not be entirely changed. The value will be simply appended at the end.')
                     value = query_value_win(key, name) + ';' + value
                 if value:
