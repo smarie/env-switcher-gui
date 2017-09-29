@@ -61,3 +61,16 @@ artifacts:
 #  You can use this step to upload your artifacts to a public website.
 #  See Appveyor's documentation for more details. Or you can simply
 #  access your wheels from the Appveyor "artifacts" tab for your build.
+
+deploy:
+  # release: myproduct-v$(appveyor_build_version)
+  description: ''
+  provider: GitHub
+  auth_token:
+    secure: 'SYd5+MMCyCHhSsQ8ZLPnbBC0KbUv/DVDUFTkdCkYd+wJCa2lsxo9w0HzA8Zg11iG' # encrypted token from GitHub
+  # artifact: /.*\.nupkg/            # upload all
+  draft: false
+  prerelease: false
+  on:
+    branch: master                 # release from master branch only
+    # appveyor_repo_tag: true        # deploy on tag push only
