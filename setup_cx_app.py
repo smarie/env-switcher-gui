@@ -32,12 +32,13 @@ sys.argv = tmp
 base = None
 if sys.platform == "win32":
     base = "Win32GUI"
+# other platforms seem ok
 
 # *** find the folder containing the qt platform plugins ****
 # -- Create a dummy app in order to load the appropriate qt configuration for the system.
-app = QApplication(sys.argv)
-plugins_path = QLibraryInfo.location(QLibraryInfo.PluginsPath)
-qt_platforms_folder = os.path.join(plugins_path, 'platforms')
+# app = QApplication(sys.argv)
+# plugins_path = QLibraryInfo.location(QLibraryInfo.PluginsPath)
+# qt_platforms_folder = os.path.join(plugins_path, 'platforms')
 # unfortunately for some reason the dll files from while the one from Anaconda/Library/plugins/platforms work,
 # so we included the latter in the sources just in case..
 qt_platforms_folder = os.path.join(THIS_DIR, 'qt_resources', 'platforms')
