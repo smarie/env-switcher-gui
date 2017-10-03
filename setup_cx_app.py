@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-
 import os
 import importlib.util
+import shutil
 import sys
 # DO NOT REMOVE setuptools IMPORT: IT PREVENTS AN ERROR SEE https://github.com/anthony-tuininga/cx_Freeze/issues/308
 import setuptools
 from envswitch.utils import version_file_cx_freeze, get_version
 from setuptools_scm import version_from_scm
-from cx_Freeze import setup, Executable
+from cx_Freeze import setup, Executable, build_exe
 
 # To build
 # - the executable distribution, do:  python setup_cx_app.py build   >> result is in build/exe.<target>/
@@ -19,17 +19,11 @@ print('Importing definitions from setup.py...')
 spec = importlib.util.spec_from_file_location("setup", os.path.join(THIS_DIR, "setup.py"))
 setup_py = importlib.util.module_from_spec(spec)
 tmp = sys.argv  # temporarily store the sys.argv to replace them during this call
-sys.argv = [tmp[0].replace('setup_cx_app.py', 'setup.py'), '--quiet', '--dry-run', 'clean']  # performs nothing, simply loads the variables defined in the script
+sys.argv = [tmp[0].replace('setup_cx_app.py', 'setup.py'), '--quiet', '--dry-run',
+            'clean']  # performs nothing, simply loads the variables defined in the script
 spec.loader.exec_module(setup_py)
 print('DONE, now executing setup_cx_app.py...')
 sys.argv = tmp
-
-# GUI applications require a different base on Windows (the default is for a
-# console application).
-base = None
-if sys.platform == "win32":
-    base = "Win32GUI"
-# other platforms seem ok
 
 # *** find the folder containing the qt platform plugins ****
 # -- Create a dummy app in order to load the appropriate qt configuration for the system.
@@ -54,25 +48,72 @@ else:
           + version_file_cx_freeze + ' file. This is ok if you ran python setup_cx_app.py build beforehand')
     THIS_TAG_OR_NEXT_TAG_VERSION = get_version()
 
+# turn this on to enable debug messages if you dont understand why such module is not imported
+# import logging
+# logging.getLogger().setLevel(logging.DEBUG)
+
 # Dependencies are automatically detected, but it might need fine tuning.
-# unpackEgg('setuptools', 'eggs_tmp')  # setuptools contains 'pkg_resources'
 options = {
     # see http://cx-freeze.readthedocs.io/en/latest/distutils.html#build-exe
     'build_exe': {
         'includes': [],
-        'packages': ['os'],  #, 'pkg_resources'],
-        'excludes': ['*'],
-        "include_files": [# (os.path.join(THIS_DIR, 'qt_resources', 'qt.conf'), 'qt.conf'),  not needed, default is ok
-                          (qt_platforms_folder, 'platforms'),  # in order to override the one gathered by cx_Freeze
-                          'LICENSE',
-                          version_file_cx_freeze,
-                          'README.md'],  # relative paths only
-        # "include_msvcr"=True
-        # 'path': sys.path + ['eggs_tmp']
+        'packages': ['os'],  # , 'pkg_resources'],
+        'excludes': ['numpy', 'pydoc', 'pydoc_data', 'email', 'multiprocessing', 'contracts', 'unittest', 'urllib',
+                     'xml', 'xmlrpc', 'bz2', 'ssl', 'hashlib', 'socket', 'lzma', 'unicodedata', 'html', 'http',
+                     ],
+        # Unfortunately as os cx_Freeze 5.0.2 there is absolutely NO way to include PyQt5.Qt, QtCore, QtGui, QtWidgets
+        # WHITHOUT including the parent package PyQt5 entirely :( so you'll have to remove it manually
+        'bin_excludes': ['pywintypes35.dll', 'zlib.dll', 'libpng16.dll',
+                         'mkl_intel_thread.dll', 'icudt57.dll', 'icuin57.dll', 'icuuc57.dll'],
+        "include_files": [  # relative paths only
+            (qt_platforms_folder, 'platforms'),  # in order to override the one gathered by cx_Freeze
+            'LICENSE', 'LICENSE-PyQt', 'LICENSE-Qt',
+            version_file_cx_freeze,
+            'README.md'],
+        # "include_msvcr"=False
+        'optimize': 2
     }
 }
 
-executables = [
+# Hack to remove qt files
+super_run = build_exe.run
+def run(self):
+    super_run(self)
+    print('HACK: removing part of the PyQt5 module to reduce the final size')
+    for f in os.listdir(os.path.join(self.build_exe, 'PyQt5')):
+        if f.startswith('QtCore') or f.startswith('QtGui') or f.startswith('QtWidget'):
+            # keep it
+            pass
+        else:
+            path = os.path.join(self.build_exe, 'PyQt5', f)
+            if os.path.isfile(path):
+                print('Removing file: ' + path)
+                os.remove(path)
+            else:
+                print('Removing folder: ' + path)
+                shutil.rmtree(path)
+    print('DONE')
+
+build_exe.run = run
+
+executables = []
+if sys.platform == "win32":
+    # on Windows, create base=None for a console application (debug mode)
+    executables.append(
+        Executable(script='envswitch/gui.py',
+                   # initScript= (executed before script)
+                   targetName='envswitch_debug.exe',
+                   base=None,
+                   # icon=
+                   )
+    )
+    # AND create a GUI also
+    base = "Win32GUI"
+else:
+    # other platforms seem ok
+    base = None
+
+executables.append(
     # see http://cx-freeze.readthedocs.io/en/latest/distutils.html#cx-freeze-executable
     Executable(script='envswitch/gui.py',
                # initScript= (executed before script)
@@ -80,8 +121,7 @@ executables = [
                base=base,
                # icon=
                )
-]
-
+)
 
 setup(name=setup_py.DISTNAME,
       description=setup_py.DESCRIPTION,
