@@ -1,6 +1,5 @@
 import os
 import platform
-from multiprocessing import Queue
 
 
 # --not needed anymore
@@ -17,14 +16,14 @@ def print_external_env_var(var_name):
     print('Value for ' + var_name + ' is : ' + get_external_env_var(var_name))
 
 
-def getenv(var_name, q: Queue):
-    """
-    A method to be spawned in a separate process to get an environment variable's value.
-    :param var_name:
-    :param q:
-    :return:
-    """
-    q.put(os.getenv(var_name))
+# def getenv(var_name, q: mp.Queue):
+#     """
+#     A method to be spawned in a separate process to get an environment variable's value.
+#     :param var_name:
+#     :param q:
+#     :return:
+#     """
+#     q.put(os.getenv(var_name))
 
 
 def get_external_env_var(var_name):
@@ -39,6 +38,13 @@ def get_external_env_var(var_name):
         from envswitch.env_api_winimpl import get_env_with_cmd_win
         return get_env_with_cmd_win(var_name)
 
+    elif case is LINUX:
+        from envswitch.env_api_linuximpl import get_env_with_cmd_linux
+        return get_env_with_cmd_linux(var_name)
+
+    else:
+        raise NotImplementedError('Code for this platform is missing in envswitch, please create an issue '
+                                  'on the github project page and optionally propose a pull request')
     # #spawn an independnt process that will start from fresh environment variables context ?
     # > spawning works but it still gets the parent environment :(
     # q = mp.Queue()
@@ -57,6 +63,7 @@ def get_external_env_var(var_name):
 
 
 WINDOWS = 1
+LINUX = 2
 
 
 def set_env_permanently(env_varname, env_value):
@@ -70,19 +77,41 @@ def set_env_permanently(env_varname, env_value):
     set_env_variables_permanently({env_varname: env_value})
 
 
-def set_env_variables_permanently(key_value_pairs: Dict[str, Any]):
+def set_env_variables_permanently(key_value_pairs: Dict[str, Any], also_apply_on_this_process: bool=True):
     """
     Similar to set_env_permanently but for a dictionary of environment variable names/value
     :param key_value_pairs:
     :return:
     """
+    # -- permanent (all new processes) application
     case = check_platform_and_get_case()
     if case is WINDOWS:
         from envswitch.env_api_winimpl import set_env_variables_permanently_win
         set_env_variables_permanently_win(key_value_pairs)
+    elif case is LINUX:
+        from envswitch.env_api_linuximpl import set_env_variables_permanently_linux
+        set_env_variables_permanently_linux(key_value_pairs)
     else:
         raise NotImplementedError('Code for this platform is missing in envswitch, please create an issue '
                                   'on the github project page and optionally propose a pull request')
+
+    # -- local (this commandline if any)
+    # TODO next version
+    # refresher_cmd = get_resource_path('./resources/win/RefreshEnv.cmd')
+    # call([refresher_cmd])
+    # Popen([refresher_cmd])
+
+    # -- local (this running process) application. Only useful for usage within a python script
+    if also_apply_on_this_process:
+        for var_name, value in key_value_pairs.items():
+            if value:
+                os.environ[var_name] = value
+            else:
+                try:
+                    del os.environ[var_name]
+                except KeyError:
+                    # ignore if already deleted
+                    pass
 
 
 def check_platform_and_get_case() -> int:
@@ -95,6 +124,8 @@ def check_platform_and_get_case() -> int:
     version = platform.version()
     if system == 'Windows':
         return WINDOWS
+    elif system == 'Linux':
+        return LINUX
     else:
         raise ValueError('This operating system/version is currently unsupported: ' + platform.platform())
 
