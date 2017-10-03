@@ -82,7 +82,6 @@ executables = [
                )
 ]
 
-import PyQt5
 
 setup(name=setup_py.DISTNAME,
       description=setup_py.DESCRIPTION,

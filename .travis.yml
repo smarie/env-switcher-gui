@@ -51,9 +51,16 @@ after_success:
 # ***packaging for releases***
   - python setup_cx_app.py build
   - python setup_cx_app.py build bdist_rpm  # the build is done again to generate the _VERSION_ bdist_msi bdist_mac bdist_dmg
+  # trying to debug why bdist_rpm does not work : cat the file
+  - find . -type f -name 'envswitch.spec' -exec cat {} \;
   # convert the rpm into a deb and move the generated file in dist/ folder
   - find dist/ -type f -iname '*.rpm' -exec sudo alien -d {} \;
   - find . -type f -iname '*.deb' -exec mv {} dist/ \;
+
+  # create a tar.gz in dist/, containing the exe for linux. Rename it envswitch-<version>-linux-...
+  # see http://wiki.bash-hackers.org/syntax/pe#search_and_replace
+  - find ./build/ -type d -iname 'exe.linux*' -exec bash -c 'tar -zcvf "./dist/envswitch-$(<VERSION__)-${0/.\/build\/exe.}.tar.gz" "$0"' {} \;
+
 # ***reporting***
 #  - junit2html junit.xml testrun.html  output is really not nice
   - ant -f ci_tools/generate-junit-html.xml  # generates the html for the test results. Actually we dont use it anymore
