@@ -8,7 +8,7 @@ import subprocess
 try:
     import win32gui, win32con
 except Exception as e:
-    print('This requires to install pypiwin32')
+    print('This requires to install pywin32 (conda) / pypiwin32 (pip)')
     raise e
 
 
