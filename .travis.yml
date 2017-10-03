@@ -53,6 +53,7 @@ after_success:
   - python setup_cx_app.py build bdist_rpm  # the build is done again to generate the _VERSION_ bdist_msi bdist_mac bdist_dmg
   # trying to debug why bdist_rpm does not work : cat the file
   - find . -type f -name 'envswitch.spec' -exec cat {} \;
+  - find . -type f -wholename '**/rpm/BUILD/envswitch-*/INSTALLED_FILES' -exec cat {} \;
   # convert the rpm into a deb and move the generated file in dist/ folder
   - find dist/ -type f -iname '*.rpm' -exec sudo alien -d {} \;
   - find . -type f -iname '*.deb' -exec mv {} dist/ \;
@@ -96,12 +97,15 @@ deploy:
       python: 3.5  #only one of the builds have to be deployed
     # server: https://test.pypi.org/legacy/
     distributions: "sdist bdist_wheel"
+
   # the release on github
   - provider: releases
     api_key:
       secure: "ernfux/weQKfWKUlRA7dBTeRG9G+eaJGwWTIwNlnGY9uR+LJa3wOXbSworCysST4TFGYDf7jWSbxqetFxyGxK1VRC0nkGn8fzla1lQUr5fNdigMx58DjfF9r2zde+NR5UXgnhQct28jTRsDWtgSVNpE3nomrgXkt4Byv5ek0NR3mS6GoekjjUPoGH0RGQnwtN5A6xDMCizWWVlajIbNoqP3RoAZcPqxmHUiYCLvjqWE9XWOWNXHT5rAPuiI2EUnKUc63z3WshubCdfAvikij0klzO2FQaRAJCKAeJ1HZACP57kHQ9TN/3/K1v/RynYHZ2bRhNumKUue2g5qTFym/m9TVqbz/YhWLTjcpGvUfzeteSmV9ZHYGBXHcH5fCSTmkpzNnEymJDZl8/B5sMW/EXmeB9FwHbMUM5vAZPDP2gsan7YqKriTq2BySWzJQQFLbHGgiq5Fh1lH/YRrow/i1iGljfemHiDPG5cvo9kIKg4vglm4PEAHUbctnjl2t3gd3hdgsZ2PfLf65z3yszZBrRrWCwrdKnC92mzafuziX/rmF1KTPaLBinvBAXURw0+rFLyoLJl10HBQq2M8NIJWgSYs0zef+zz6VFBn8v+DkT/Z+J6CeFcTb3H0IuL6M450QsTAG0pXTIBhuqTUuU6iyA3FRWghN8ub+i6SZY1aIT6g="
     file_glob: true
-    file: dist/*
+    file:
+      - dist/*linux*.tar.gz
+      - dist/*.rpm
     # on:
     #   repo: "smarie/env-switcher-gui"
     skip_cleanup: true
