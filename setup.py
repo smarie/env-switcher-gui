@@ -3,11 +3,10 @@ See:
 https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
-
+import platform
 from os import path
 
 from setuptools import setup, find_packages
-from setuptools_scm import get_version
 
 here = path.abspath(path.dirname(__file__))
 
@@ -16,9 +15,19 @@ INSTALL_REQUIRES = ['pyyaml', 'click', 'autoclass']  # we cannot include 'PyQt>=
 DEPENDENCY_LINKS = []
 SETUP_REQUIRES = ['pytest-runner', 'setuptools_scm', 'pypandoc', 'pandoc']
 TESTS_REQUIRE = ['pytest', 'pytest-logging', 'pytest-cov']
-EXTRAS_REQUIRE = {':sys_platform == "win32"': ['pypiwin32'],  #    'platform_system=="Windows"'
-                  #':"linux" in sys_platform': ['pyxdg']    # 'platform_system=="Linux"'
-                 }
+
+# Unfortunately this does not enforce the installation with pip. And the package does not have the same name on conda!
+# EXTRAS_REQUIRE = {':sys_platform == "win32"': ['pypiwin32'],  #    'platform_system=="Windows"'
+#                   #':"linux" in sys_platform': ['pyxdg']    # 'platform_system=="Linux"'
+#                  }
+system = platform.system()
+if system == 'Windows':
+    try:
+        import win32gui, win32con
+    except Exception as e:
+        print('This requires to install pywin32 (conda) / pypiwin32 (pip)')
+        raise e
+EXTRAS_REQUIRE = {}
 
 # simple check
 try:
