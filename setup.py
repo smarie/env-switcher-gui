@@ -11,6 +11,12 @@ from setuptools import setup, find_packages
 here = path.abspath(path.dirname(__file__))
 
 # *************** Dependencies *********
+try:
+    from PyQt5 import QtCore
+except Exception as e:
+    print('This package requires PyQt with version 5.6 (later versions generate distribution issues).')
+    raise e
+
 INSTALL_REQUIRES = ['pyyaml', 'click', 'autoclass']  # we cannot include 'PyQt>=5.6' here for conda compatibility reasons, see doc/index.md
 DEPENDENCY_LINKS = []
 SETUP_REQUIRES = ['pytest-runner', 'setuptools_scm', 'pypandoc', 'pandoc']

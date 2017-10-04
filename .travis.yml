@@ -33,7 +33,7 @@ before_install:
 
 install:
   - pip install -r ci_tools/requirements-setup.txt
-  - pip install pyqt5>=5.6
+  - pip install pyqt5==5.6  # otherwise this creates issues with the packaging
   - pip install -r ci_tools/requirements-test.txt
   - pip install -r ci_tools/requirements-report.txt
   - pip install -r ci_tools/requirements-doc.txt
