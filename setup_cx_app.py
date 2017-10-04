@@ -60,9 +60,11 @@ options = {
         # without including the parent package PyQt5 entirely :( so we have to remove it later in a hack, see line 81
         'includes': [],
         'packages': ['os'],
+        # 'excludes': [],
         'excludes': ['numpy', 'pydoc', 'pydoc_data', 'email', 'multiprocessing', 'contracts', 'unittest', 'urllib',
                      'xml', 'xmlrpc', 'bz2', 'ssl', 'hashlib', 'socket', 'lzma', 'unicodedata', 'html', 'http',
                      'distutils'],
+        # 'bin_excludes': [],
         'bin_excludes': ['pywintypes35.dll', 'zlib.dll', 'libpng16.dll', 'mkl_intel_thread.dll',
                          'icudt58.dll', 'icuin58.dll', 'icuuc58.dll',
                          'icudt57.dll', 'icuin57.dll', 'icuuc57.dll',
@@ -91,19 +93,19 @@ def run(self):
     pyqt_dir = all[0]
 
     # then remove all unused files
-    # for f in os.listdir(pyqt_dir):
-    #     if f.startswith('QtCore') or f.startswith('QtGui') or f.startswith('QtWidget') or f.startswith('__'):
-    #         # keep it
-    #         pass
-    #     else:
-    #
-    #         path = os.path.join(pyqt_dir, f)
-    #         if os.path.isfile(path):
-    #             print('Removing file: ' + path)
-    #             os.remove(path)
-    #         else:
-    #             print('Removing folder: ' + path)
-    #             shutil.rmtree(path)
+    for f in os.listdir(pyqt_dir):
+        if f.startswith('QtCore') or f.startswith('QtGui') or f.startswith('QtWidget') or f.startswith('__'):
+            # keep it
+            pass
+        else:
+
+            path = os.path.join(pyqt_dir, f)
+            if os.path.isfile(path):
+                print('Removing file: ' + path)
+                os.remove(path)
+            else:
+                print('Removing folder: ' + path)
+                shutil.rmtree(path)
     print('DONE')
 build_exe.run = run  # this is where we replace the methods with our hack
 # *************************

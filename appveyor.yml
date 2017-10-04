@@ -99,7 +99,7 @@ artifacts:
   - path: 'build\exe.win-amd64-%PYTHON_VERSION%'
     type: zip
 
-  - path: 'build\exe.win-win32-%PYTHON_VERSION%'
+  - path: 'build\exe.win32-%PYTHON_VERSION%'
     type: zip
 
   - path: dist\*
