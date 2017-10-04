@@ -15,7 +15,7 @@ environment:
     #- PYTHON: "C:\\Python33"
     #- PYTHON: "C:\\Python34"
     - PYTHON_VERSION: "3.5"
-      # PYTHON: "C:\\Python35"
+      PYTHON: "C:\\Python35"
       MINICONDA: "C:\\Miniconda35"
     #- PYTHON: "C:\\Python27-x64"
     #- PYTHON: "C:\\Python33-x64"
@@ -23,50 +23,48 @@ environment:
     #- PYTHON: "C:\\Python34-x64"
     #  DISTUTILS_USE_SDK: "1"
     - PYTHON_VERSION: "3.5"
-      # PYTHON: "C:\\Python35-x64"
+      PYTHON: "C:\\Python35-x64"
       MINICONDA: "C:\\Miniconda35-x64"
 
 init:
-  - "ECHO %PYTHON_VERSION% %MINICONDA%"
+  - "ECHO %PYTHON_VERSION% %PYTHON% %MINICONDA%"
 
 # **** pip version ****
-#install:
-#  # We need wheel installed to build wheels
-#  - "%PYTHON%\\python.exe -m pip install wheel"
-#  - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-setup.txt"
-#  - "%PYTHON%\\python.exe -m pip install pyqt5>=5.6"
-#  - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-test.txt"
-#  - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-report.txt"
-#  - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-doc.txt"
-#  - "%PYTHON%\\python.exe -m pip install pypiwin32"
-#  - cinst pandoc
-#  - pandoc -v
-#  - "%PYTHON%\\python.exe -m pip install ."
+install:
+  # We need wheel installed to build wheels
+  - "%PYTHON%\\python.exe -m pip install wheel"
+  - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-setup.txt"
+  - "%PYTHON%\\python.exe -m pip install pyqt5>=5.6"
+  - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-test.txt"
+  - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-report.txt"
+  - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-doc.txt"
+  - "%PYTHON%\\python.exe -m pip install pypiwin32"
+  - cinst pandoc
+  - pandoc -v
+  - "%PYTHON%\\python.exe -m pip install ."
 
 # **** Miniconda version ****
-install:
-  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  - conda info -a
-  # - conda config --add channels bashtage
-  # - conda install arch -y
-  - "conda create -q -n test-environment python=%PYTHON_VERSION% wheel"
-  - activate test-environment
-  - conda install pyqt=5.6  # otherwise this creates issues with the packaging
-  - conda install pywin32
-  - conda install pandoc
-  - pandoc -v
-  - pip install -r ci_tools/requirements-test.txt
-  - pip install -r ci_tools/requirements-setup.txt
-  - pip install -r ci_tools/requirements-report.txt
-  - pip install -r ci_tools/requirements-doc.txt
+#install:
+#  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+#  - conda config --set always_yes yes --set changeps1 no
+#  - conda update -q conda
+#  - conda info -a
+#  # - conda config --add channels bashtage
+#  # - conda install arch -y
+#  - "conda create -q -n test-environment python=%PYTHON_VERSION% wheel"
+#  - activate test-environment
+#  - conda install pyqt=5.6  # otherwise this creates issues with the packaging
+#  - conda install pywin32
+#  - conda install pandoc
+#  - pandoc -v
+#  - pip install -r ci_tools/requirements-test.txt
+#  - pip install -r ci_tools/requirements-setup.txt
+#  - pip install -r ci_tools/requirements-report.txt
+#  - pip install -r ci_tools/requirements-doc.txt
+#  - conda list cx-Freeze
+#  - pip install .
 
-# build: off
-# to run your custom scripts instead of automatic MSBuild
-build_script:
-  - pip install .
-
+build: off
 
 test_script:
   # Put your test command here.
@@ -76,27 +74,27 @@ test_script:
   # Note that you must use the environment variable %PYTHON% to refer to
   # the interpreter you're using - Appveyor does not do anything special
   # to put the Python version you want to use on PATH.
-  # - "%PYTHON%\\python.exe setup.py test"
-  - python setup.py test
+  - "%PYTHON%\\python.exe setup.py test"
+  # - python setup.py test
 
 after_test:
   # ***packaging for releases***
   # source and wheel for PyPi >> this is already done in travis
   # - "build.cmd %PYTHON%\\python.exe setup.py sdist bdist_wheel"
   # installer for github release
-  # - "%PYTHON%\\python.exe setup_cx_app.py build"
-  - python setup_cx_app.py build
-  #- 7z a myapp.zip %APPVEYOR_BUILD_FOLDER%\path\to\bin\*.dll
+  - "%PYTHON%\\python.exe setup_cx_app.py build"
+  # - python setup_cx_app.py build
+  # - 7z a myapp.zip %APPVEYOR_BUILD_FOLDER%\path\to\bin\*.dll
 
-  # - "%PYTHON%\\python.exe setup_cx_app.py bdist_msi"
-  - python setup_cx_app.py bdist_msi
+  - "%PYTHON%\\python.exe setup_cx_app.py bdist_msi"
+  # - python setup_cx_app.py bdist_msi
 
   # ***reporting >> this is already done in travis ***
   # ***documentation >> this is already done in travis ***
 
 artifacts:
   # bdist_wheel puts your built wheel in the dist directory
-  - path: build/exe.win*
+  - path: 'build/exe.win*'
     type: zip
 
   - path: dist\*

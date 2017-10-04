@@ -63,8 +63,9 @@ options = {
         'excludes': ['numpy', 'pydoc', 'pydoc_data', 'email', 'multiprocessing', 'contracts', 'unittest', 'urllib',
                      'xml', 'xmlrpc', 'bz2', 'ssl', 'hashlib', 'socket', 'lzma', 'unicodedata', 'html', 'http',
                      'distutils'],
-        'bin_excludes': ['pywintypes35.dll', 'zlib.dll', 'libpng16.dll',
-                         'mkl_intel_thread.dll', 'icudt57.dll', 'icuin57.dll', 'icuuc57.dll',
+        'bin_excludes': ['pywintypes35.dll', 'zlib.dll', 'libpng16.dll', 'mkl_intel_thread.dll',
+                         'icudt58.dll', 'icuin58.dll', 'icuuc58.dll',
+                         'icudt57.dll', 'icuin57.dll', 'icuuc57.dll',
                          'platforms/libqminimal.so', 'platforms/libqoffscreen.so', 'libQt5DBus.so.5', 'libQt5Svg.so.5',
                          'libQt5XcbQpa.so.5', 'libxml2.so.2', 'libjpeg.so.9', 'liblzma.so.5', 'libfreetype.so.6',
                          'libdbus-1.so.3', 'libfontconfig.so.1', 'libreadline.so.7', 'libtinfow.so.6', 'libxcb.so.1',
@@ -90,19 +91,19 @@ def run(self):
     pyqt_dir = all[0]
 
     # then remove all unused files
-    for f in os.listdir(pyqt_dir):
-        if f.startswith('QtCore') or f.startswith('QtGui') or f.startswith('QtWidget'):
-            # keep it
-            pass
-        else:
-
-            path = os.path.join(pyqt_dir, f)
-            if os.path.isfile(path):
-                print('Removing file: ' + path)
-                os.remove(path)
-            else:
-                print('Removing folder: ' + path)
-                shutil.rmtree(path)
+    # for f in os.listdir(pyqt_dir):
+    #     if f.startswith('QtCore') or f.startswith('QtGui') or f.startswith('QtWidget') or f.startswith('__'):
+    #         # keep it
+    #         pass
+    #     else:
+    #
+    #         path = os.path.join(pyqt_dir, f)
+    #         if os.path.isfile(path):
+    #             print('Removing file: ' + path)
+    #             os.remove(path)
+    #         else:
+    #             print('Removing folder: ' + path)
+    #             shutil.rmtree(path)
     print('DONE')
 build_exe.run = run  # this is where we replace the methods with our hack
 # *************************
