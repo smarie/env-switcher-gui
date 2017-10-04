@@ -20,6 +20,7 @@ TESTS_REQUIRE = ['pytest', 'pytest-logging', 'pytest-cov']
 # EXTRAS_REQUIRE = {':sys_platform == "win32"': ['pypiwin32'],  #    'platform_system=="Windows"'
 #                   #':"linux" in sys_platform': ['pyxdg']    # 'platform_system=="Linux"'
 #                  }
+print('Checking platform. If Windows, enforcing pywin32/pypiwin32')
 system = platform.system()
 if system == 'Windows':
     try:
