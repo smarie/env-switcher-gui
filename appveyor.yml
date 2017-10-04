@@ -7,6 +7,10 @@ environment:
     # The list here is complete (excluding Python 2.6, which
     # isn't covered by this document) at the time of writing.
 
+    # for miniconda :
+    # https://www.appveyor.com/docs/build-environment/#miniconda
+    # http://help.appveyor.com/discussions/questions/6802-appveyor-with-conda
+
     #- PYTHON: "C:\\Python27"
     #- PYTHON: "C:\\Python33"
     #- PYTHON: "C:\\Python34"
@@ -55,8 +59,8 @@ install:
   - pandoc -v
   - pip install -r ci_tools/requirements-test.txt
   - pip install -r ci_tools/requirements-setup.txt
-  - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-report.txt"
-  - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-doc.txt"
+  - pip install -r ci_tools/requirements-report.txt
+  - pip install -r ci_tools/requirements-doc.txt
 
 # build: off
 # to run your custom scripts instead of automatic MSBuild
