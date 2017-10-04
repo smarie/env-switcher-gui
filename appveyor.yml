@@ -14,9 +14,11 @@ environment:
     #- PYTHON: "C:\\Python27"
     #- PYTHON: "C:\\Python33"
     #- PYTHON: "C:\\Python34"
-    - PYTHON_VERSION: "3.5"
-      PYTHON: "C:\\Python35"
-      MINICONDA: "C:\\Miniconda35"
+
+    # Unfortunately this does not work with miniconda 32 bit: resulting cx_freeze still contains 64/32
+#    - PYTHON_VERSION: "3.5"
+#      PYTHON: "C:\\Python35"
+#      MINICONDA: "C:\\Miniconda35"
     #- PYTHON: "C:\\Python27-x64"
     #- PYTHON: "C:\\Python33-x64"
     #  DISTUTILS_USE_SDK: "1"
@@ -120,4 +122,4 @@ deploy:
   prerelease: false
   on:
     branch: master                 # release from master branch only
-    # appveyor_repo_tag: true        # deploy on tag push only
+    appveyor_repo_tag: true        # deploy on tag push only
