@@ -57,7 +57,7 @@ install:
 #  - conda install pywin32
   - conda env create -f "ci_tools/conda_env.yml" -n envswitch
   - activate envswitch
-  - conda install pandoc
+#  - conda install pandoc -q
   - pandoc -v
   - pip install -r ci_tools/requirements-test.txt
   - pip install -r ci_tools/requirements-setup.txt
