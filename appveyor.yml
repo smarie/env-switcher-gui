@@ -86,13 +86,19 @@ after_test:
   # installer for github release
   # - "%PYTHON%\\python.exe setup_cx_app.py build"
   - python setup_cx_app.py build
+  #- 7z a myapp.zip %APPVEYOR_BUILD_FOLDER%\path\to\bin\*.dll
+
   # - "%PYTHON%\\python.exe setup_cx_app.py bdist_msi"
   - python setup_cx_app.py bdist_msi
+
   # ***reporting >> this is already done in travis ***
   # ***documentation >> this is already done in travis ***
 
 artifacts:
   # bdist_wheel puts your built wheel in the dist directory
+  - path: build/exe.win*
+    type: zip
+
   - path: dist\*
 
 on_success:
