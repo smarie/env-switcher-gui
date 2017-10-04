@@ -25,14 +25,6 @@ spec.loader.exec_module(setup_py)
 print('DONE, now executing setup_cx_app.py...')
 sys.argv = tmp
 
-# *** find the folder containing the qt platform plugins ****
-# -- Create a dummy app in order to load the appropriate qt configuration for the system.
-# app = QApplication(sys.argv)
-# plugins_path = QLibraryInfo.location(QLibraryInfo.PluginsPath)
-# qt_platforms_folder = os.path.join(plugins_path, 'platforms')
-# unfortunately for some reason the dll files from while the one from Anaconda/Library/plugins/platforms work,
-# so we included the latter in the sources just in case..
-qt_platforms_folder = os.path.join(THIS_DIR, 'qt_resources', 'platforms')
 
 # # you should pip install -e . before running this
 # import pkg_resources  # part of setuptools
@@ -52,40 +44,59 @@ else:
 # import logging
 # logging.getLogger().setLevel(logging.DEBUG)
 
-# Dependencies are automatically detected, but it might need fine tuning.
+# ******** define what to include in the frozen version *********
+files_to_include = ['LICENSE', 'LICENSE-PyQt', 'LICENSE-Qt', version_file_cx_freeze, 'README.md']
+# unfortunately for some reason the dll files from the current anaconda env do not work,
+# while the one from root (Anaconda/Library/plugins/platforms) works, so we include the latter in the sources
+qt_platforms_folder = os.path.join(THIS_DIR, 'qt_resources', 'platforms')
+if sys.platform == "win32":
+    files_to_include.append((qt_platforms_folder, 'platforms')),  # in order to override the one gathered by cx_Freeze
+
 options = {
     # see http://cx-freeze.readthedocs.io/en/latest/distutils.html#build-exe
     'build_exe': {
+        # ---- Dependencies are automatically detected, but too much is included. Fine-tune ----
+        # Unfortunately as os cx_Freeze 5.0.2 there is absolutely NO way to include PyQt5.Qt, QtCore, QtGui, QtWidgets
+        # without including the parent package PyQt5 entirely :( so we have to remove it later in a hack, see line 81
         'includes': [],
-        'packages': ['os'],  # , 'pkg_resources'],
+        'packages': ['os'],
         'excludes': ['numpy', 'pydoc', 'pydoc_data', 'email', 'multiprocessing', 'contracts', 'unittest', 'urllib',
                      'xml', 'xmlrpc', 'bz2', 'ssl', 'hashlib', 'socket', 'lzma', 'unicodedata', 'html', 'http',
-                     ],
-        # Unfortunately as os cx_Freeze 5.0.2 there is absolutely NO way to include PyQt5.Qt, QtCore, QtGui, QtWidgets
-        # WHITHOUT including the parent package PyQt5 entirely :( so you'll have to remove it manually
+                     'distutils'],
         'bin_excludes': ['pywintypes35.dll', 'zlib.dll', 'libpng16.dll',
-                         'mkl_intel_thread.dll', 'icudt57.dll', 'icuin57.dll', 'icuuc57.dll'],
-        "include_files": [  # relative paths only
-            (qt_platforms_folder, 'platforms'),  # in order to override the one gathered by cx_Freeze
-            'LICENSE', 'LICENSE-PyQt', 'LICENSE-Qt',
-            version_file_cx_freeze,
-            'README.md'],
+                         'mkl_intel_thread.dll', 'icudt57.dll', 'icuin57.dll', 'icuuc57.dll',
+                         'platforms/libqminimal.so', 'platforms/libqoffscreen.so', 'libQt5DBus.so.5', 'libQt5Svg.so.5',
+                         'libQt5XcbQpa.so.5', 'libxml2.so.2', 'libjpeg.so.9', 'liblzma.so.5', 'libfreetype.so.6',
+                         'libdbus-1.so.3', 'libfontconfig.so.1', 'libreadline.so.7', 'libtinfow.so.6', 'libxcb.so.1',
+                         ],
+        # ---- other files to include ------
+        "include_files": files_to_include,
         # "include_msvcr"=False
         'optimize': 2
     }
 }
 
-# Hack to remove qt files
+
+# ********* Hack to remove qt files after build ****************
 super_run = build_exe.run
 def run(self):
     super_run(self)
     print('HACK: removing part of the PyQt5 module to reduce the final size')
-    for f in os.listdir(os.path.join(self.build_exe, 'PyQt5')):
+    # first find the folder
+    import glob
+    all = [folder for folder in glob.glob(self.build_exe + '/**/PyQt5', recursive=True)]
+    if len(all) != 1:
+        raise Exception('Found several PyQt5 folders... ' + str(all))
+    pyqt_dir = all[0]
+
+    # then remove all unused files
+    for f in os.listdir(pyqt_dir):
         if f.startswith('QtCore') or f.startswith('QtGui') or f.startswith('QtWidget'):
             # keep it
             pass
         else:
-            path = os.path.join(self.build_exe, 'PyQt5', f)
+
+            path = os.path.join(pyqt_dir, f)
             if os.path.isfile(path):
                 print('Removing file: ' + path)
                 os.remove(path)
@@ -93,9 +104,11 @@ def run(self):
                 print('Removing folder: ' + path)
                 shutil.rmtree(path)
     print('DONE')
+build_exe.run = run  # this is where we replace the methods with our hack
+# *************************
 
-build_exe.run = run
 
+# ********* define executables to create ****************
 executables = []
 if sys.platform == "win32":
     # on Windows, create base=None for a console application (debug mode)
@@ -122,6 +135,8 @@ executables.append(
                # icon=
                )
 )
+# *************************
+
 
 setup(name=setup_py.DISTNAME,
       description=setup_py.DESCRIPTION,
