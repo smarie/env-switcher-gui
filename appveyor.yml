@@ -29,7 +29,7 @@ environment:
 init:
   - "ECHO %PYTHON_VERSION% %PYTHON% %MINICONDA%"
 
-## **** pip version ****
+## **** pip version. It works but  ****
 #install:
 #  # We need wheel installed to build wheels
 #  - "%PYTHON%\\python.exe -m pip install wheel"
@@ -46,22 +46,24 @@ init:
 # **** Miniconda version ****
 install:
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  - conda info -a
-  # - conda config --add channels bashtage
-  # - conda install arch -y
-  - "conda create -q -n test-environment python=%PYTHON_VERSION% wheel"
-  - activate test-environment
-  - conda install pyqt=5.6  # otherwise this creates issues with the packaging ?
-  - conda install pywin32
+#  - conda config --set always_yes yes --set changeps1 no
+#  - conda update -q conda
+#  - conda info -a
+#  # - conda config --add channels bashtage
+#  # - conda install arch -y
+#  - "conda create -q -n test-environment python=%PYTHON_VERSION% wheel"
+#  - activate test-environment
+#  - conda install pyqt=5.6  # otherwise this creates issues with the packaging ?
+#  - conda install pywin32
+  - conda env create -f "ci_tools/conda_env.yml" -n envswitch
+  - activate envswitch
   - conda install pandoc
   - pandoc -v
   - pip install -r ci_tools/requirements-test.txt
   - pip install -r ci_tools/requirements-setup.txt
   - pip install -r ci_tools/requirements-report.txt
   - pip install -r ci_tools/requirements-doc.txt
-  - conda list cx-Freeze
+#  - conda list cx-Freeze
   - pip install .
 
 build: off
@@ -94,7 +96,10 @@ after_test:
 
 artifacts:
   # bdist_wheel puts your built wheel in the dist directory
-  - path: 'build\exe.**'
+  - path: 'build\exe.win-amd64-%PYTHON_VERSION%'
+    type: zip
+
+  - path: 'build\exe.win-win32-%PYTHON_VERSION%'
     type: zip
 
   - path: dist\*

@@ -1,0 +1,26 @@
+channels:
+- defaults
+dependencies:
+- certifi=2016.2.28=py35_0
+- icu=57.1=vc14_0
+- jpeg=9b=vc14_0
+- libpng=1.6.30=vc14_1
+- openssl=1.0.2l=vc14_0
+- pip=9.0.1=py35_1
+- pyqt=5.6.0=py35_2
+- python=3.5.4=0
+- pywin32=220=py35_2
+- qt=5.6.2=vc14_6
+- setuptools=36.4.0=py35_1
+- setuptools_scm=1.15.0=py35_0
+- sip=4.18=py35_0
+- vs2015_runtime=14.0.25420=0
+- wheel=0.29.0=py35_0
+- wincertstore=0.2=py35_0
+- zlib=1.2.11=vc14_0
+- pip:
+  - autoclass==1.8.0
+  - cx-freeze==5.0.2
+  - decorator==4.1.2
+  - pyyaml==3.12
+  - setuptools-scm==1.15.0

@@ -13,7 +13,7 @@ here = path.abspath(path.dirname(__file__))
 # *************** Dependencies *********
 try:
     from PyQt5 import QtCore
-except Exception as e:
+except ImportError as e:
     print('This package requires PyQt with version 5.6 (later versions generate distribution issues).')
     raise e
 
@@ -31,7 +31,7 @@ system = platform.system()
 if system == 'Windows':
     try:
         import win32gui, win32con
-    except Exception as e:
+    except ImportError as e:
         print('This requires to install pywin32 (conda) / pypiwin32 (pip)')
         raise e
 EXTRAS_REQUIRE = {}
