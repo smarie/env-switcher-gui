@@ -1,24 +1,14 @@
 language: python
 
 # cache: pip
+cache:
+  directories:
+    '../Qt5.6'
+    '../PyQt5_gpl-5.6'
 
 python:
-#  - "2.6"
-#  - "2.7"
-#  - "3.2"
-#  - "3.3"
-#  - "3.4"
   - "3.5"
-#  - "3.5-dev" # 3.5 development branch
   - "3.6"
-#  - "3.6-dev" # 3.6 development branch
-#  - "3.7-dev" # 3.7 development branch
-#  - "nightly" # currently points to 3.7-dev
-# PyPy versions
-#  - "pypy"  # PyPy2 2.5.0
-#  - "pypy3" # Pypy3 2.4.0
-#  - "pypy-5.3.1"
-#
 
 env:
   global:
@@ -30,61 +20,46 @@ before_install:
   - sudo apt-get install ant-optional
   - sudo apt-get install rpm
   - sudo apt-get install alien
+
+  # *** install conda - from https://conda.io/docs/user-guide/tasks/use-conda-with-travis-ci.html
   - sudo wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
-  #- conda update -q conda
-#  # Useful for debugging any issues with conda
-#  - conda info -a
-  - conda install "python==3.5.4" "qt==5.6.0" sip "pip>=9.0.1" "setuptools=36"
-#  - export QTDIR="$HOME/miniconda"
-#  - export QMAKESPECS="$HOME/miniconda/mkspecs/linux-g++"
-#  - export QT_PLUGIN_PATH="$QTDIR/plugins"
+  # - conda update -q conda NO !!!!
+  # Uncomment this for debugging conda
+  # - conda info -a
 
-  # 32 bits: build from sources
-#  - sudo wget http://download.qt.io/official_releases/qt/5.6/5.6.3/single/qt-everywhere-opensource-src-5.6.3.tar.xz
-#  - sudo tar -xvf qt-everywhere-opensource-src-5.6.3.tar.xz
-#  - cd qt-everywhere-opensource-src-5.6.3/
-#  - sudo apt-get install libxcb*
-#  - cd ./qtbase/src/3rdparty/pcre/
-#  - sudo make
-#  - cd -
-  ## test: cette ligne ne doit plus dire 'not found' sudo ld -L/usr/src/qt-everywhere-opensource-src-5.6.3/qtbase/lib -lqtpcre
-## Note: to get the list of modules to skip : find . -regextype sed -maxdepth 1 -regex "./qt[^b^\.].*"
-## Note: -no-dbus ne fonctionne pas car il le cherche quand même
-#  - sudo ./configure -opensource -confirm-license -prefix /usr/bin/Qt5.6 -no-icu -no-cups -no-harfbuzz -skip qtlocation -skip qt3d -skip qtmultimedia -skip qtwebchannel -skip qtwayland -skip qtandroidextras -skip qtwebsockets -skip qtconnectivity -skip qtdoc -skip qtwebview -skip qtimageformats -skip qtwebengine -skip qtquickcontrols2 -skip qttranslations -skip qtxmlpatterns -skip qtactiveqt -skip qtx11extras -skip qtsvg -skip qtscript -skip qtserialport -skip qtdeclarative -skip qtgraphicaleffects -skip qtcanvas3d -skip qtmacextras -skip qttools -skip qtwinextras -skip qtsensors -skip qtenginio -skip qtquickcontrols -skip qtserialbus
-## Fine-tuning: to get the list of features : https://github.com/qt/qtbase/blob/v5.6.3/src/corelib/global/qfeatures.txt
-#  -no-feature-TEXTHTMLPARSER -no-feature-TEXTODFWRITER -no-feature-CSSPARSER -no-feature-XMLSTREAM -no-feature-XMLSTREAMREADER -no-feature-XMLSTREAMWRITER -no-feature-DOM -no-feature-TREEWIDGET -no-feature-TABLEWIDGET -no-feature-TEXTBROWSER -no-feature-FONTCOMBOBOX -no-feature-TOOLBAR -no-feature-TOOLBOX -no-feature-GROUPBOX -no-feature-DOCKWIDGET -no-feature-MDIAREA -no-feature-SLIDER -no-feature-SCROLLBAR -no-feature-DIAL -no-feature-SCROLLAREA -no-feature-GRAPHICSVIEW -no-feature-GRAPHICSEFFECT -no-feature-SPINWIDGET -no-feature-TEXTEDIT -no-feature-SYNTAXHIGHLIGHTER -no-feature-RUBBERBAND -no-feature-CALENDARWIDGET -no-feature-PRINTPREVIEWWIDGET -no-feature-FONTDIALOG -no-feature-PRINTDIALOG -no-feature-PRINTPREVIEWDIALOG -no-feature-TABLEVIEW -no-feature-TREEVIEW -no-feature-IMAGEFORMATPLUGIN -no-feature-MOVIE -no-feature-IMAGEFORMAT_BMP -no-feature-IMAGEFORMAT_PPM -no-feature-IMAGEFORMAT_XBM -no-feature-IMAGEFORMAT_XPM -no-feature-IMAGE_HEURISTIC_MASK -no-feature-PICTURE -no-feature-COLORNAMES -no-feature-PRINTER -no-feature-CUPS -no-feature-PAINT_DEBUG -no-feature-FTP -no-feature-HTTP -no-feature-UDPSOCKET -no-feature-NETWORKINTERFACE -no-feature-NETWORKDISKCACHE -no-feature-COMPLETER -no-feature-FSCOMPLETER -no-feature-DESKTOPSERVICES -no-feature-ANIMATION -no-feature-STATEMACHINE
-#  - sudo make install
-#  - export PATH=/usr/bin/Qt5.6/bin:$PATH
+  # *** install useful dependencies
+  - conda install "python==3.5.4" sip "pip>=9.0.1" "setuptools=36"
 
-  # 64 bits: install qt
+  # *** install Qt
+  # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
+  # >> build & install Qt from sources
+  - cd "$TRAVIS_BUILD_DIR/.."
+  - export QT_DIR="$TRAVIS_BUILD_DIR/../Qt5.6"
+  # only build qt if needed
+  - if [ ! -d "$QT_DIR" ]; then $TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh fi;
+  - export PATH=$QT_DIR/bin:$PATH
+
+  # 64 bits: install qt directly
 #  - sudo wget http://download.qt.io/official_releases/qt/5.6/5.6.3/qt-opensource-linux-x64-5.6.3.run
 #  - chmod +x qt-opensource-linux-x64-5.6.3.run
 #  - ./qt-opensource-linux-x64-5.6.3.run
 
   # ********* Compile PyQt ***********
-  - wget https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.6/PyQt5_gpl-5.6.tar.gz/download --no-check-certificate
-  - tar -xvf download
-  # from https://wiki.qt.io/Install_Qt_5_on_Ubuntu: install opengl libraries so as to be able to build QtGui
-  - sudo apt-get install mesa-common-dev
-  - sudo apt-get install libglu1-mesa-dev -y
-  - cd PyQt5_gpl-5.6/
-  # apply our HACK patch to fix the generated makefiles
-  - patch ./configure.py < ../ci_tools/pyqt5-configure.py.patch
-  # --qmake $HOME/miniconda/bin/qmake --sip $HOME/miniconda/bin/sip --verbose
-  - python configure.py --no-python-dbus --no-qml-plugin --no-qsci-api --no-tools --confirm-license --disable QtHelp --disable QtMultimedia --disable QtMultimediaWidgets --disable QtNetwork --disable QtOpenGL --disable QtPrintSupport --disable QtQml --disable QtQuick --disable QtSql --disable QtSvg --disable QtTest --disable QtWebKit --disable QtWebKitWidgets --disable QtXml --disable QtXmlPatterns --disable QtDesigner --disable QAxContainer --disable QtDBus --disable QtWebSockets --disable QtWebChannel --disable QtNfc
-  - make
+  - cd "$TRAVIS_BUILD_DIR/.."
+  - export PYQT_DIR="$TRAVIS_BUILD_DIR/../PyQt5_gpl-5.6"
+  - if [ ! -d "$PYQT_DIR" ]; then $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh; fi;
+  - cd "$PYQT_DIR"
   - make install
-  - cd ..
-  - rm -rf PyQt5_gpl-5.6
 
 
 install:
   - pip install -r ci_tools/requirements-setup.txt
-  # - pip install pyqt5==5.6  # otherwise this creates issues with the packaging
+  # Now in order to better control the size of our package, we do not rely on this wheel anymore but we compile PyQt (see above)
+  # - pip install pyqt5==5.6  #
   - pip install -r ci_tools/requirements-test.txt
   - pip install -r ci_tools/requirements-report.txt
   - pip install -r ci_tools/requirements-doc.txt
