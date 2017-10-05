@@ -4,8 +4,8 @@
 
 export QT_SRC_DIR="$TRAVIS_BUILD_DIR/../qt-everywhere-opensource-src-5.6.3"
 
-sudo wget http://download.qt.io/official_releases/qt/5.6/5.6.3/single/qt-everywhere-opensource-src-5.6.3.tar.xz
-sudo tar -xvf qt-everywhere-opensource-src-5.6.3.tar.xz
+wget -q http://download.qt.io/official_releases/qt/5.6/5.6.3/single/qt-everywhere-opensource-src-5.6.3.tar.xz
+tar -xvf qt-everywhere-opensource-src-5.6.3.tar.xz >/dev/null
 
 # --dependencies ---
 # from https://wiki.qt.io/Install_Qt_5_on_Ubuntu: install opengl libraries so as to be able to build QtGui

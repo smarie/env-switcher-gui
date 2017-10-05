@@ -1,7 +1,7 @@
 #!/bin/bash
 
-wget https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.6/PyQt5_gpl-5.6.tar.gz/download --no-check-certificate
-tar -xvf download
+wget -q https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.6/PyQt5_gpl-5.6.tar.gz/download --no-check-certificate
+tar -xvf download >/dev/null
 
 # from https://wiki.qt.io/Install_Qt_5_on_Ubuntu: install opengl libraries so as to be able to build QtGui
 sudo apt-get install mesa-common-dev

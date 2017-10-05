@@ -32,7 +32,7 @@ before_install:
   # - conda info -a
 
   # *** install useful dependencies
-  - conda install "python==3.5.4" sip "pip>=9.0.1" "setuptools=36"
+  - conda install "python==3.5.4" sip "pip>=9.0.1" "setuptools=36" -q
 
   # *** install Qt
   # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
