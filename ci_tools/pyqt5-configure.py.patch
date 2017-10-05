@@ -1,0 +1,32 @@
+--- C:/W_dev/_pycharm_workspace/0_develop-and-proxy/configure.py	dim. avr. 24 12:55:08 2016
++++ C:/W_dev/_pycharm_workspace/0_develop-and-proxy/configure new.py	jeu. oct.  5 18:33:21 2017
+@@ -1934,0 +1935,4 @@ def run_qmake(target_config, verbose, pro_name, ma
++    # *** HACK change makefiles 
++    lib_path = target_config.qmake[:target_config.qmake.find('/bin/qmake')] + '/lib'
++    fix_file(mf, lib_path)
++
+@@ -1938,0 +1943,7 @@ def run_qmake(target_config, verbose, pro_name, ma
++    if recursive:
++        import glob
++        all = [file for file in glob.glob('./**/Makefile', recursive=True)]
++        print('found other makefiles: ' + str(all))
++        for mkfile in all:
++            fix_file(mkfile, lib_path)
++
+@@ -1941,0 +1953,13 @@ def run_qmake(target_config, verbose, pro_name, ma
++def fix_file(file_name, lib_path):
++    """ 
++    replace "LFLAGS = -Wl,-O1 -Wl,-rpath,/home/ubuntu/miniconda/lib" 
++    with "LFLAGS = -L/home/ubuntu/miniconda/lib -Wl,-O1 -Wl,-rpath,/home/ubuntu/miniconda/lib
++    """
++    print('HACK SMA -- fixing generated makefile : ' + str(file_name))
++    with open(file_name, 'r') as f:
++        mkfile = f.read()
++    mkfile = mkfile.replace('LFLAGS        = -Wl,', 'LFLAGS        = -L' + lib_path + ' -Wl,')
++    with open(file_name, 'w') as f:
++        f.write(mkfile)
++
++
+@@ -2226 +2250 @@ def compile_qt_program(target_config, verbose, nam
+-
++    	
