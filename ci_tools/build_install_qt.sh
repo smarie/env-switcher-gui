@@ -8,6 +8,10 @@ sudo wget http://download.qt.io/official_releases/qt/5.6/5.6.3/single/qt-everywh
 sudo tar -xvf qt-everywhere-opensource-src-5.6.3.tar.xz
 
 # --dependencies ---
+# from https://wiki.qt.io/Install_Qt_5_on_Ubuntu: install opengl libraries so as to be able to build QtGui
+sudo apt-get install mesa-common-dev
+sudo apt-get install libglu1-mesa-dev -y
+
 sudo apt-get install libxcb*
 # we have to build pcre manually BEFORE compiling qt
 cd $QT_SRC_DIR/qtbase/src/3rdparty/pcre/

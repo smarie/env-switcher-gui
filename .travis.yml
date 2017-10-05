@@ -41,7 +41,7 @@ before_install:
   - export QT_DIR="$TRAVIS_BUILD_DIR/../Qt5.6"
   - echo $QT_DIR
   # only build qt if needed
-  - if [ ! -d "$QT_DIR" ]; then echo "Building Qt5.6 from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh"; source "$TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh"; fi;
+  - if [ ! -f "$QT_DIR/lib/libQt5Core.so" ]; then echo "Building Qt5.6 from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh"; source "$TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh"; fi;
   - export PATH=$QT_DIR/bin:$PATH
 
   # 64 bits: install qt directly
@@ -53,7 +53,7 @@ before_install:
   - cd "$TRAVIS_BUILD_DIR/.."
   - export PYQT_DIR="$TRAVIS_BUILD_DIR/../PyQt5_gpl-5.6"
   - echo $PYQT_DIR
-  - if [ ! -d "$PYQT_DIR" ]; then echo "Building PyQt5.6 from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh"; source "$TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh"; fi;
+  - if [ ! -d "$PYQT_DIR/Makefile" ]; then echo "Building PyQt5.6 from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh"; source "$TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh"; fi;
   - cd "$PYQT_DIR"
   - make install
 
