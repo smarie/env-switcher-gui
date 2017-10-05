@@ -67,7 +67,7 @@ before_install:
   - wget https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.6/PyQt5_gpl-5.6.tar.gz/download --no-check-certificate
   - tar -xvf download
   - cd PyQt5_gpl-5.6/
-  - python configure.py --no-python-dbus --no-qml-plugin --no-qsci-api --no-tools --confirm-license
+  - python configure.py --no-python-dbus --no-qml-plugin --no-qsci-api --no-tools --confirm-license --qmake $HOME/miniconda/bin/qmake --sip $HOME/miniconda/bin/sip
   - python setup.py install
 
 
