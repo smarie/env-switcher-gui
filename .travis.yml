@@ -38,7 +38,10 @@ before_install:
   #- conda update -q conda
 #  # Useful for debugging any issues with conda
 #  - conda info -a
-  - conda install "python==3.5.4" "qt==5.6.0" sip
+  - conda install "python==3.5.4" "qt==5.6.0" sip "pip>=9.0.1" "setuptools=36"
+#  - export QTDIR="$HOME/miniconda"
+#  - export QMAKESPECS="$HOME/miniconda/mkspecs/linux-g++"
+#  - export QT_PLUGIN_PATH="$QTDIR/plugins"
 
   # 32 bits: build from sources
 #  - sudo wget http://download.qt.io/official_releases/qt/5.6/5.6.3/single/qt-everywhere-opensource-src-5.6.3.tar.xz
@@ -57,19 +60,26 @@ before_install:
 #  - sudo make install
 #  - export PATH=/usr/bin/Qt5.6/bin:$PATH
 
-
-
-  # 64 bits: install
+  # 64 bits: install qt
 #  - sudo wget http://download.qt.io/official_releases/qt/5.6/5.6.3/qt-opensource-linux-x64-5.6.3.run
 #  - chmod +x qt-opensource-linux-x64-5.6.3.run
 #  - ./qt-opensource-linux-x64-5.6.3.run
 
-  # puis compilation de pyqt
+  # ********* Compile PyQt ***********
   - wget https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.6/PyQt5_gpl-5.6.tar.gz/download --no-check-certificate
   - tar -xvf download
+  # from https://wiki.qt.io/Install_Qt_5_on_Ubuntu: install opengl libraries so as to be able to build QtGui
+  - sudo apt-get install mesa-common-dev
+  - sudo apt-get install libglu1-mesa-dev -y
   - cd PyQt5_gpl-5.6/
-  - python configure.py --no-python-dbus --no-qml-plugin --no-qsci-api --no-tools --confirm-license --qmake $HOME/miniconda/bin/qmake --sip $HOME/miniconda/bin/sip --verbose
-  - python setup.py install
+  # apply our HACK patch to fix the generated makefiles
+  - patch ./configure.py < ../ci_tools/pyqt5-configure.py.patch
+  # --qmake $HOME/miniconda/bin/qmake --sip $HOME/miniconda/bin/sip --verbose
+  - python configure.py --no-python-dbus --no-qml-plugin --no-qsci-api --no-tools --confirm-license --disable QtHelp --disable QtMultimedia --disable QtMultimediaWidgets --disable QtNetwork --disable QtOpenGL --disable QtPrintSupport --disable QtQml --disable QtQuick --disable QtSql --disable QtSvg --disable QtTest --disable QtWebKit --disable QtWebKitWidgets --disable QtXml --disable QtXmlPatterns --disable QtDesigner --disable QAxContainer --disable QtDBus --disable QtWebSockets --disable QtWebChannel --disable QtNfc
+  - make
+  - make install
+  - cd ..
+  - rm -rf PyQt5_gpl-5.6
 
 
 install:
