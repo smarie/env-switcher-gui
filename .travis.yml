@@ -30,10 +30,50 @@ before_install:
   - sudo apt-get install ant-optional
   - sudo apt-get install rpm
   - sudo apt-get install alien
+  - sudo wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  #- conda update -q conda
+#  # Useful for debugging any issues with conda
+#  - conda info -a
+
+  # 32 bits: build from sources
+#  - sudo wget http://download.qt.io/official_releases/qt/5.6/5.6.3/single/qt-everywhere-opensource-src-5.6.3.tar.xz
+#  - sudo tar -xvf qt-everywhere-opensource-src-5.6.3.tar.xz
+#  - cd qt-everywhere-opensource-src-5.6.3/
+#  - sudo apt-get install libxcb*
+#  - cd ./qtbase/src/3rdparty/pcre/
+#  - sudo make
+#  - cd -
+  ## test: cette ligne ne doit plus dire 'not found' sudo ld -L/usr/src/qt-everywhere-opensource-src-5.6.3/qtbase/lib -lqtpcre
+## Note: to get the list of modules to skip : find . -regextype sed -maxdepth 1 -regex "./qt[^b^\.].*"
+## Note: -no-dbus ne fonctionne pas car il le cherche quand même
+#  - sudo ./configure -opensource -confirm-license -prefix /usr/bin/Qt5.6 -no-icu -no-cups -no-harfbuzz -skip qtlocation -skip qt3d -skip qtmultimedia -skip qtwebchannel -skip qtwayland -skip qtandroidextras -skip qtwebsockets -skip qtconnectivity -skip qtdoc -skip qtwebview -skip qtimageformats -skip qtwebengine -skip qtquickcontrols2 -skip qttranslations -skip qtxmlpatterns -skip qtactiveqt -skip qtx11extras -skip qtsvg -skip qtscript -skip qtserialport -skip qtdeclarative -skip qtgraphicaleffects -skip qtcanvas3d -skip qtmacextras -skip qttools -skip qtwinextras -skip qtsensors -skip qtenginio -skip qtquickcontrols -skip qtserialbus
+## Fine-tuning: to get the list of features : https://github.com/qt/qtbase/blob/v5.6.3/src/corelib/global/qfeatures.txt
+#  -no-feature-TEXTHTMLPARSER -no-feature-TEXTODFWRITER -no-feature-CSSPARSER -no-feature-XMLSTREAM -no-feature-XMLSTREAMREADER -no-feature-XMLSTREAMWRITER -no-feature-DOM -no-feature-TREEWIDGET -no-feature-TABLEWIDGET -no-feature-TEXTBROWSER -no-feature-FONTCOMBOBOX -no-feature-TOOLBAR -no-feature-TOOLBOX -no-feature-GROUPBOX -no-feature-DOCKWIDGET -no-feature-MDIAREA -no-feature-SLIDER -no-feature-SCROLLBAR -no-feature-DIAL -no-feature-SCROLLAREA -no-feature-GRAPHICSVIEW -no-feature-GRAPHICSEFFECT -no-feature-SPINWIDGET -no-feature-TEXTEDIT -no-feature-SYNTAXHIGHLIGHTER -no-feature-RUBBERBAND -no-feature-CALENDARWIDGET -no-feature-PRINTPREVIEWWIDGET -no-feature-FONTDIALOG -no-feature-PRINTDIALOG -no-feature-PRINTPREVIEWDIALOG -no-feature-TABLEVIEW -no-feature-TREEVIEW -no-feature-IMAGEFORMATPLUGIN -no-feature-MOVIE -no-feature-IMAGEFORMAT_BMP -no-feature-IMAGEFORMAT_PPM -no-feature-IMAGEFORMAT_XBM -no-feature-IMAGEFORMAT_XPM -no-feature-IMAGE_HEURISTIC_MASK -no-feature-PICTURE -no-feature-COLORNAMES -no-feature-PRINTER -no-feature-CUPS -no-feature-PAINT_DEBUG -no-feature-FTP -no-feature-HTTP -no-feature-UDPSOCKET -no-feature-NETWORKINTERFACE -no-feature-NETWORKDISKCACHE -no-feature-COMPLETER -no-feature-FSCOMPLETER -no-feature-DESKTOPSERVICES -no-feature-ANIMATION -no-feature-STATEMACHINE
+#  - sudo make install
+#  - export PATH=/usr/bin/Qt5.6/bin:$PATH
+
+
+
+  # 64 bits: install
+#  - sudo wget http://download.qt.io/official_releases/qt/5.6/5.6.3/qt-opensource-linux-x64-5.6.3.run
+#  - chmod +x qt-opensource-linux-x64-5.6.3.run
+#  - ./qt-opensource-linux-x64-5.6.3.run
+
+  # puis compilation de pyqt
+  - wget https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.6/PyQt5_gpl-5.6.tar.gz/download --no-check-certificate
+  - tar -xvf download
+  - cd PyQt5_gpl-5.6/
+  - python configure.py --no-python-dbus --no-qml-plugin --no-qsci-api --no-tools --confirm-license
+  - python setup.py install
+
 
 install:
   - pip install -r ci_tools/requirements-setup.txt
-  - pip install pyqt5==5.6  # otherwise this creates issues with the packaging
+  # - pip install pyqt5==5.6  # otherwise this creates issues with the packaging
   - pip install -r ci_tools/requirements-test.txt
   - pip install -r ci_tools/requirements-report.txt
   - pip install -r ci_tools/requirements-doc.txt

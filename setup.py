@@ -4,6 +4,7 @@ https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
 import platform
+import sys
 from os import path
 
 from setuptools import setup, find_packages
@@ -101,7 +102,7 @@ try:
             f.write(LONG_DESCRIPTION.encode('utf-8'))
         print('There are warnings in the generated DESCRIPTION.rst. The created description file has been dumped to '
               'GENERATED_DESCRIPTION_TO_DELETE.rst temporary file for review')
-        input("Press Enter to continue...")
+        sys.exit(1)
 
 except(ImportError):
     from warnings import warn
