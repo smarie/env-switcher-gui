@@ -50,7 +50,7 @@ before_install:
   - cd "$TRAVIS_BUILD_DIR/.."
   - export PYQT_DIR="$TRAVIS_BUILD_DIR/../PyQt"; echo $PYQT_DIR
   - if [ ! -d "$PYQT_DIR/Makefile" ]; then echo "Building PyQt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh"; source "$TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh"; fi;
-  - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; make install
+  - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; sudo make install
 
 
 install:

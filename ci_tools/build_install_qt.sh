@@ -36,22 +36,22 @@ sudo ./configure -opensource -confirm-license -prefix $QT_DIR -no-icu -no-cups -
 echo "(e) Compiling Qt - part 1"
 cd $QT_SRC_DIR
 pwd
-make
+sudo make
 
 echo "(f) Building pcre "
 # we have to build pcre manually BEFORE finishing to compile qt
 cd $QT_SRC_DIR/qtbase/src/3rdparty/pcre/
 pwd
-make
+sudo make
 # test that it works: this command should not say 'not found' : sudo ld -L/usr/src/qt-src/qtbase/lib -lqtpcre
 
 echo "(g) Compiling Qt - part 2"
 cd $QT_SRC_DIR
 pwd
-make
+sudo make
 
 echo "(h) Installing Qt"
-make install
+sudo make install
 
 echo "(i) Cleaning up and returning to travid build dir"
 cd "$TRAVIS_BUILD_DIR"

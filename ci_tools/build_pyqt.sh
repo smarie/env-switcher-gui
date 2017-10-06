@@ -27,4 +27,4 @@ python configure.py --no-python-dbus --no-qml-plugin --no-qsci-api --no-tools --
 # --qmake $HOME/miniconda/bin/qmake --sip $HOME/miniconda/bin/sip --verbose
 
 echo "(f) Compiling PyQt"
-make
+sudo make
