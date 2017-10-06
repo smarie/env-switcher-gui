@@ -2,16 +2,16 @@
 
 # before running this script the variable QT_DIR should exist.
 echo "***** Starting compilation of Qt for installation to $QT_DIR *******"
-export QT_SRC_DIR="$TRAVIS_BUILD_DIR/../qt-everywhere-opensource-src-5.6.3"
+export QT_SRC_DIR="$TRAVIS_BUILD_DIR/../qt-src"
 export QT_SRC_URL="http://download.qt.io/official_releases/qt/5.6/5.6.3/single/qt-everywhere-opensource-src-5.6.3.tar.xz"
 
 echo "(a) Downloading Qt sources from $QT_SRC_URL in "
 pwd
-wget -q $QT_SRC_URL
+wget -q $QT_SRC_URL -O qt-src.tar.xz
 
-echo "(b) Unzipping Qt5.6 sources in "
+echo "(b) Unzipping Qt sources in "
 pwd
-tar -xvf qt-everywhere-opensource-src-5.6.3.tar.xz >/dev/null
+tar -xvf qt-src.tar.xz >/dev/null
 
 echo "(c) Installing Qt dependencies "
 sudo apt-get install libxcb*
@@ -34,7 +34,7 @@ echo "(e) Building pcre "
 cd $QT_SRC_DIR/qtbase/src/3rdparty/pcre/
 pwd
 sudo make
-# test that it works: this command should not say 'not found' : sudo ld -L/usr/src/qt-everywhere-opensource-src-5.6.3/qtbase/lib -lqtpcre
+# test that it works: this command should not say 'not found' : sudo ld -L/usr/src/qt-src/qtbase/lib -lqtpcre
 
 
 echo "(f) Compiling and installing Qt"

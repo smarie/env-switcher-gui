@@ -3,8 +3,8 @@ language: python
 # cache: pip
 cache:
   directories:
-  - '../Qt5.6'
-  - '../PyQt5_gpl-5.6'
+  - '../QtDistrib'
+  - '../PyQt'
 
 python:
   - "3.5"
@@ -22,27 +22,24 @@ before_install:
   - sudo apt-get install alien
 
   # *** install conda - from https://conda.io/docs/user-guide/tasks/use-conda-with-travis-ci.html
-  - sudo wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
+  - echo "downloading miniconda"; sudo wget -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - echo "installing miniconda to $HOME/miniconda";  bash miniconda.sh -b -p $HOME/miniconda; export PATH="$HOME/miniconda/bin:$PATH"
+  - echo "configuring miniconda"; hash -r; conda config --set always_yes yes --set changeps1 no
   # - conda update -q conda NO !!!!
   # Uncomment this for debugging conda
   # - conda info -a
 
   # *** install useful dependencies
-  - conda install "python==3.5.4" sip "pip>=9.0.1" "setuptools=36" -q
+  - echo "conda-installing python, sip, pip, and setuptools"; conda install "python==3.5.4" sip "pip>=9.0.1" "setuptools=36" -q
 
   # *** install Qt
   # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
   # >> build & install Qt from sources
   - cd "$TRAVIS_BUILD_DIR/.."
-  - export QT_DIR="$TRAVIS_BUILD_DIR/../Qt5.6"
-  - echo $QT_DIR
+  - export QT_DIR="$TRAVIS_BUILD_DIR/../QtDistrib"; echo $QT_DIR
   # only build qt if needed
-  - if [ ! -f "$QT_DIR/lib/libQt5Core.so" ]; then echo "Building Qt5.6 from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh"; source "$TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh"; fi;
-  - export PATH=$QT_DIR/bin:$PATH
+  - if [ ! -f "$QT_DIR/lib/libQt5Core.so" ]; then echo "Building Qt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh"; source "$TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh"; fi;
+  - echo "Adding qt directory $QT_DIR/bin to path"; export PATH=$QT_DIR/bin:$PATH
 
   # 64 bits: install qt directly
 #  - sudo wget http://download.qt.io/official_releases/qt/5.6/5.6.3/qt-opensource-linux-x64-5.6.3.run
@@ -51,11 +48,9 @@ before_install:
 
   # ********* Compile PyQt ***********
   - cd "$TRAVIS_BUILD_DIR/.."
-  - export PYQT_DIR="$TRAVIS_BUILD_DIR/../PyQt5_gpl-5.6"
-  - echo $PYQT_DIR
-  - if [ ! -d "$PYQT_DIR/Makefile" ]; then echo "Building PyQt5.6 from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh"; source "$TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh"; fi;
-  - cd "$PYQT_DIR"
-  - make install
+  - export PYQT_DIR="$TRAVIS_BUILD_DIR/../PyQt"; echo $PYQT_DIR
+  - if [ ! -d "$PYQT_DIR/Makefile" ]; then echo "Building PyQt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh"; source "$TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh"; fi;
+  - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; make install
 
 
 install:
