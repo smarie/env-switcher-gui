@@ -14,7 +14,9 @@ except Exception as e:
 
 def get_env_with_cmd_win(var_name):
     """
-    Similar to os.getenv actually
+    Similar to os.environ[var_name] but reads the environment variable as defined at the os MACHINE level, not the
+    value of the environment variable in the current process context
+
     :param var_name:
     :return:
     """
@@ -57,6 +59,9 @@ def get_env_with_cmd_win(var_name):
 
 def set_env_variables_permanently_win(key_value_pairs: Dict[str, Any]):
     """
+    Similar to os.environ[var_name] = var_value for all pairs provided, but instead of setting the variables in the
+    current process, sets the environment variables permanently at the os MACHINE level.
+
     Recipe from http://code.activestate.com/recipes/416087/
     :return:
     """
