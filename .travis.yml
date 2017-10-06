@@ -12,9 +12,9 @@ python:
   - "3.6"
 
 env:
-  global:
   - QT_VER: 5.6.3
     PYQT_VER: 5.6
+  global:
   - GH_REF: git@github.com:smarie/env-switcher-gui.git
 
 before_install:
@@ -43,7 +43,13 @@ before_install:
   - cd "$TRAVIS_BUILD_DIR/.."
   - export QT_DIR="$TRAVIS_BUILD_DIR/../QtDistrib"; echo $QT_DIR
   # only build qt if needed
-  - if [ ! -f "$QT_DIR/lib/libQt5Core.so" ]; then echo "Building Qt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh"; source "$TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh"; fi;
+  # if [ ! -f "$QT_DIR/lib/libQt5Core.so" ];
+  - if ls "$QT_DIR/lib/*.so" 1> /dev/null 2>&1; then
+      echo "Qt was already built in a previous run, using cached folder $QT_DIR";
+    else
+      echo "Building Qt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh";
+      source "$TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh";
+    fi
   - echo "Adding qt directory $QT_DIR/bin to path"; export PATH=$QT_DIR/bin:$PATH
 
   # 64 bits: install qt directly
@@ -54,7 +60,12 @@ before_install:
   # ********* Compile PyQt ***********
   - cd "$TRAVIS_BUILD_DIR/.."
   - export PYQT_DIR="$TRAVIS_BUILD_DIR/../PyQt"; echo $PYQT_DIR
-  - if [ ! -d "$PYQT_DIR/Makefile" ]; then echo "Building PyQt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh"; source "$TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh"; fi;
+  - if [ ! -d "$PYQT_DIR/Makefile" ]; then
+      echo "Building PyQt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
+      source "$TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
+    else
+      echo "PyQt was already built in a previous run, using cached folder $PYQT_DIR";
+    fi
   - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; sudo make install
 
 

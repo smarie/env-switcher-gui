@@ -8,7 +8,7 @@
 
 echo "***** Starting compilation of PyQt in $PYQT_DIR for installation in python site-packages *******"
 export PYQT_VER_MAJOR=${PYQT_VER%.*}
-export PYQT_ARCHIVE="PyQt$PYQT_VER_MAJOR_gpl-$PYQT_VER"
+export PYQT_ARCHIVE="PyQt$PYQT_VER_MAJOR""_gpl-$PYQT_VER"
 export PYQT_SRC_URL="https://sourceforge.net/projects/pyqt/files/PyQt$PYQT_VER_MAJOR/PyQt-$PYQT_VER/$PYQT_ARCHIVE.tar.gz/download"
 
 cd "$TRAVIS_BUILD_DIR/.."
