@@ -13,8 +13,8 @@ python:
 
 env:
   - QT_VER=5.6.3 PYQT_VER=5.6
-  global:
-  - GH_REF: git@github.com:smarie/env-switcher-gui.git
+  - global:
+    - GH_REF: git@github.com:smarie/env-switcher-gui.git
 
 before_install:
   - sudo apt-get install pandoc
