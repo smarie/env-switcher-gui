@@ -7,11 +7,13 @@ cache:
   - '../PyQt'
 
 python:
+  # We don't actually use the Travis Python, but this keeps it organized.
   - "3.5"
   - "3.6"
 
 env:
   global:
+  - QT_VER: 5.6.3
   - GH_REF: git@github.com:smarie/env-switcher-gui.git
 
 before_install:
@@ -22,15 +24,17 @@ before_install:
   - sudo apt-get install alien
 
   # *** install conda - from https://conda.io/docs/user-guide/tasks/use-conda-with-travis-ci.html
-  - echo "downloading miniconda"; sudo wget -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - echo "downloading miniconda"; if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      sudo wget -q https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      sudo wget -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
   - echo "installing miniconda to $HOME/miniconda";  bash miniconda.sh -b -p $HOME/miniconda; export PATH="$HOME/miniconda/bin:$PATH"
   - echo "configuring miniconda"; hash -r; conda config --set always_yes yes --set changeps1 no
-  # - conda update -q conda NO !!!!
-  # Uncomment this for debugging conda
-  # - conda info -a
+  # - conda update -q conda NO !!!!  #  conda info -a  # Use this to debug conda
 
   # *** install useful dependencies
-  - echo "conda-installing python, sip, pip, and setuptools"; conda install "python==3.5.4" sip "pip>=9.0.1" "setuptools=36" -q
+  - echo "conda-installing python, sip, pip, and setuptools"; conda install "python=$TRAVIS_PYTHON_VERSION" sip "pip>=9.0.1" "setuptools=36" -q
 
   # *** install Qt
   # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
