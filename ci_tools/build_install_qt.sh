@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# before running this script the variable QT_DIR and QT_VER should exist.
+# source:
+#   https://wiki.qt.io/Install_Qt_5_on_Ubuntu
+#   https://wiki.qt.io/Building_Qt_5_from_Git
+
+# before running this script the variable QT_DIR and QT_VER should exist
 
 echo "***** Starting compilation of Qt for installation to $QT_DIR *******"
 export QT_VER_SHORT=${QT_VER%.*}
@@ -9,6 +13,7 @@ export QT_SRC_URL="http://download.qt.io/official_releases/qt/$QT_VER_SHORT/$QT_
 export QT_SRC_DIR="$TRAVIS_BUILD_DIR/../$QT_ARCHIVE"
 export QT_PCRE_SRC="$QT_SRC_DIR/qtbase/src/3rdparty/pcre/"
 
+cd "$TRAVIS_BUILD_DIR/.."
 echo "(a) Downloading Qt sources from $QT_SRC_URL in $PWD"
 wget -q $QT_SRC_URL
 
@@ -50,4 +55,4 @@ sudo make install
 
 cd "$TRAVIS_BUILD_DIR"
 echo "(i) Cleaning up and returning to travid build dir $PWD"
-rm -rf $QT_SRC_DIR
+sudo rm -rf $QT_SRC_DIR
