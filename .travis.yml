@@ -36,19 +36,19 @@ before_install:
   - echo "configuring miniconda"; hash -r; conda config --set always_yes yes --set changeps1 no
   # - conda update -q conda NO !!!!  #  conda info -a  # Use this to debug conda
 
-  # *** install useful dependencies
+  # *** install base dependencies
   - echo "conda-installing python, sip, pip, and setuptools"; conda install "python=$TRAVIS_PYTHON_VERSION" sip "pip>=9.0.1" "setuptools=36" -q
 
   # ****** Install Qt
-  - cd "$TRAVIS_BUILD_DIR/.."
+  - cd "$TRAVIS_BUILD_DIR/.."; mkdir PyQt5-minimal; cd PyQt5-minimal
   - sudo wget -q $QT_URL
-  - tar -xvf $QT_ARCHIVE
-  - echo "Installing Qt to path"; export PATH=$TRAVIS_BUILD_DIR/$QT_DIR/bin:$PATH ; cd $TRAVIS_BUILD_DIR
+  - tar -xvf $QT_ARCHIVE >/dev/null
+  - echo "Installing Qt to path"; export PATH=$TRAVIS_BUILD_DIR/PyQt5-minimal/$QT_DIR/bin:$PATH ; cd $TRAVIS_BUILD_DIR
 
   # ********* Install PyQt ***********
-  - cd "$TRAVIS_BUILD_DIR/.."
+  - cd "$TRAVIS_BUILD_DIR/.."; cd PyQt5-minimal
   - sudo wget -q $PYQT_URL
-  - tar -xvf $PYQT_ARCHIVE
+  - tar -xvf $PYQT_ARCHIVE >/dev/null
   - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; sudo make install; cd $TRAVIS_BUILD_DIR
 
 
