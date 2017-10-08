@@ -1,10 +1,6 @@
 language: python
 
 # cache: pip
-cache:
-  directories:
-  - '../QtDistrib'
-  - '../PyQt'
 
 python:
   # We don't actually use the Travis Python, but this keeps it organized.
@@ -13,7 +9,7 @@ python:
 
 env:
   matrix:
-  - QT_VER=5.6.3 PYQT_VER=5.6
+  - PYQT_DIR=PyQt5.6 PYQT_ARCHIVE=PyQt5.6_gpl_minimal-Linux-x86_64.tar.gz PYQT_URL=https://github.com/smarie/PyQt5-minimal/releases/download/untagged-7ae3ea521adcb9d48257/PyQt5.6_gpl_minimal-Linux-x86_64.tar.gz
   global:
   - GH_REF: git@github.com:smarie/env-switcher-gui.git
 
@@ -37,36 +33,11 @@ before_install:
   # *** install useful dependencies
   - echo "conda-installing python, sip, pip, and setuptools"; conda install "python=$TRAVIS_PYTHON_VERSION" sip "pip>=9.0.1" "setuptools=36" -q
 
-  # *** install Qt
-  # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
-  # >> build & install Qt from sources
+  # ********* Install PyQt ***********
   - cd "$TRAVIS_BUILD_DIR/.."
-  - export QT_DIR="$TRAVIS_BUILD_DIR/../QtDistrib"; echo $QT_DIR
-  # only build qt if needed
-  # if [ ! -f "$QT_DIR/lib/libQt5Core.so" ];
-  - if ls "$QT_DIR/lib/*.so" 1> /dev/null 2>&1; then
-      echo "Qt was already built in a previous run, using cached folder $QT_DIR";
-    else
-      echo "Building Qt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh";
-      source "$TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh";
-    fi
-  - echo "Adding qt directory $QT_DIR/bin to path"; export PATH=$QT_DIR/bin:$PATH
-
-  # 64 bits: install qt directly
-#  - sudo wget http://download.qt.io/official_releases/qt/5.6/5.6.3/qt-opensource-linux-x64-5.6.3.run
-#  - chmod +x qt-opensource-linux-x64-5.6.3.run
-#  - ./qt-opensource-linux-x64-5.6.3.run
-
-  # ********* Compile PyQt ***********
-  - cd "$TRAVIS_BUILD_DIR/.."
-  - export PYQT_DIR="$TRAVIS_BUILD_DIR/../PyQt"; echo $PYQT_DIR
-  - if [ ! -d "$PYQT_DIR/Makefile" ]; then
-      echo "Building PyQt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
-      source "$TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
-    else
-      echo "PyQt was already built in a previous run, using cached folder $PYQT_DIR";
-    fi
-  - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; sudo make install
+  - sudo wget -q $PYQT_URL
+  - tar -xvf $PYQT_ARCHIVE
+  - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; sudo make install; cd $TRAVIS_BUILD_DIR
 
 
 install:

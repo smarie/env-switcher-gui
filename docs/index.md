@@ -107,14 +107,14 @@ Note that by default the configuration file used will be the last one edited wit
 
 Inspiring references:
 
-* Python desktop apps Overview: http://takluyver.github.io/posts/so-you-want-to-write-a-desktop-app-in-python.html
-* PyQt and Qt designer: https://nikolak.com/pyqt-qt-designer-getting-started/
-* PyQt Main Window example: 
-* Resources in Qt: https://stackoverflow.com/questions/36673900/importing-resource-file-to-pyqt-code
-* Example project with tray icon: https://github.com/dglent/meteo-qt
+* Python desktop apps Overview: [http://takluyver.github.io/posts/so-you-want-to-write-a-desktop-app-in-python.html](http://takluyver.github.io/posts/so-you-want-to-write-a-desktop-app-in-python.html)
+* PyQt and Qt designer: [https://nikolak.com/pyqt-qt-designer-getting-started/](https://nikolak.com/pyqt-qt-designer-getting-started/)
+* PyQt Main Window example: [http://doc.qt.io/qt-5/qtwidgets-mainwindows-application-example.html](http://doc.qt.io/qt-5/qtwidgets-mainwindows-application-example.html)
+* Resources in Qt: [https://stackoverflow.com/questions/36673900/importing-resource-file-to-pyqt-code](https://stackoverflow.com/questions/36673900/importing-resource-file-to-pyqt-code)
+* Example project with tray icon: [https://github.com/dglent/meteo-qt](https://github.com/dglent/meteo-qt)
 * MVC with PyQt: 
-    * https://stackoverflow.com/questions/1660474/pyqt-and-mvc-pattern
-    * (in french) https://openclassrooms.com/courses/programmez-avec-le-langage-c/l-architecture-mvc-avec-les-widgets-complexes
+    * [https://stackoverflow.com/questions/1660474/pyqt-and-mvc-pattern](https://stackoverflow.com/questions/1660474/pyqt-and-mvc-pattern)
+    * (in french) [https://openclassrooms.com/courses/programmez-avec-le-langage-c/l-architecture-mvc-avec-les-widgets-complexes](https://openclassrooms.com/courses/programmez-avec-le-langage-c/l-architecture-mvc-avec-les-widgets-complexes)
 
 Alternatives to PyQt: 
 * [Enaml](http://nucleic.github.io/enaml/docs/index.html)
