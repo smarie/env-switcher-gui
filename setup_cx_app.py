@@ -90,22 +90,22 @@ def run(self):
     all = [folder for folder in glob.glob(self.build_exe + '/**/PyQt5', recursive=True)]
     if len(all) > 1:
         raise Exception('Found several PyQt5 folders... ' + str(all))
-    pyqt_dir = all[0]
-
-    # then remove all unused files
-    for f in os.listdir(pyqt_dir):
-        if f.startswith('QtCore') or f.startswith('QtGui') or f.startswith('QtWidget') or f.startswith('__'):
-            # keep it
-            pass
-        else:
-
-            path = os.path.join(pyqt_dir, f)
-            if os.path.isfile(path):
-                print('Removing file: ' + path)
-                os.remove(path)
+    if len(all) == 1:
+        # then remove all unused files
+        pyqt_dir = all[0]
+        for f in os.listdir(pyqt_dir):
+            if f.startswith('QtCore') or f.startswith('QtGui') or f.startswith('QtWidget') or f.startswith('__'):
+                # keep it
+                pass
             else:
-                print('Removing folder: ' + path)
-                shutil.rmtree(path)
+
+                path = os.path.join(pyqt_dir, f)
+                if os.path.isfile(path):
+                    print('Removing file: ' + path)
+                    os.remove(path)
+                else:
+                    print('Removing folder: ' + path)
+                    shutil.rmtree(path)
     print('DONE')
 build_exe.run = run  # this is where we replace the methods with our hack
 # *************************
