@@ -1,3 +1,7 @@
+### 1.2.1 - New packaging for releases - with linux
+
+* Added linux 64 distribution with minimal size, reusing independent project [PyQt5-minimal](https://github.com/smarie/PyQt5-minimal)
+
 ### 1.2.0 - New packaging for releases
 
 * Reducing the size of generated distribution on windows and on linux (but on linux it is still quite large as it includes libicudata.so.58, help would be needed to remove this dependency).
