@@ -52,8 +52,12 @@ before_install:
   # We cannot use the makefile installer because it depends upon the python versions.
   # - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; sudo make install; cd $TRAVIS_BUILD_DIR
   - export PYQT_INSTALL_DIR="$HOME/miniconda/lib/python$TRAVIS_PYTHON_VERSION/site-packages/PyQt5"
-  - echo "Installing PyQt to python site-packages"; mkdir $PYQT_INSTALL_DIR; cd $PYQT_DIR; find . \( -name "*so" -o -name "*pyi" \) -not -name "lib*" -exec cp {} $PYQT_INSTALL_DIR \;; cd "$TRAVIS_BUILD_DIR";
-  - ls -la $PYQT_INSTALL_DIR
+  - echo "Installing PyQt to python site-packages";
+    mkdir $PYQT_INSTALL_DIR; cd $PYQT_DIR;
+    find . \( -name "*so" -o -name "*pyi" \) -not -name "lib*" -exec cp {} $PYQT_INSTALL_DIR \;;
+    cp ./__init__.py $PYQT_INSTALL_DIR;
+    ls -la $PYQT_INSTALL_DIR;
+    cd "$TRAVIS_BUILD_DIR";
 
 install:
   - pip install -r ci_tools/requirements-setup.txt
@@ -131,11 +135,11 @@ deploy:
     file:
       - dist/*linux*.tar.gz
       - dist/*.rpm
-    # on:
-    #   repo: "smarie/env-switcher-gui"
     skip_cleanup: true
     on:
       tags: true
+      python: 3.5  # only one of the builds has to be deployed
+      #   repo: "smarie/env-switcher-gui"
 
 matrix:
     fast_finish: true
