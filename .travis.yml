@@ -88,8 +88,11 @@ after_success:
   - find . -type f -iname '*.deb' -exec mv {} dist/ \;
 
   # create a tar.gz in dist/, containing the exe for linux. Rename it envswitch-<version>-linux-...
-  # see http://wiki.bash-hackers.org/syntax/pe#search_and_replace
-  - find ./build/ -type d -iname 'exe.linux*' -exec bash -c 'tar -zcvf "./dist/envswitch-$(<VERSION__)-${0/.\/build\/exe.}.tar.gz" "$0"' {} \;
+  # see http://wiki.bash-hackers.org/syntax/pe#search_and_replace for the linux replace syntax
+  - cd build;
+    find . -type d -iname 'exe.linux*' -exec bash -c 'cp -r ${0/.\/} envswitch-$(<VERSION__)-${0/.\/exe.}' {} \;;  # first copy folder to a new name
+    find . -type d -iname 'envswitch-$(<VERSION__)-*' -exec bash -c 'tar -zcvf ../dist/${0/.\/}.tar.gz ${0/.\/}' {} \;;  # then create the archive
+    cd "$TRAVIS_BUILD_DIR";
 
 # ***reporting***
 #  - junit2html junit.xml testrun.html  output is really not nice

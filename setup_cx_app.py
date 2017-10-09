@@ -84,9 +84,19 @@ options = {
 super_run = build_exe.run
 def run(self):
     super_run(self)
-    print('HACK: removing part of the PyQt5 module to reduce the final size')
-    # first find the folder
+    print('HACK: removing unused parts of the PyQt5 package to reduce the final size')
     import glob
+    # isolated files in root
+    all = [file for file in glob.glob(self.build_exe + '/libQt*')]
+    for path in all:
+        if os.path.isfile(path):
+            print('Removing file: ' + path)
+            os.remove(path)
+        else:
+            print('Removing folder: ' + path)
+            shutil.rmtree(path)
+
+    # first find the folder
     all = [folder for folder in glob.glob(self.build_exe + '/**/PyQt5', recursive=True)]
     if len(all) > 1:
         raise Exception('Found several PyQt5 folders... ' + str(all))
@@ -98,7 +108,6 @@ def run(self):
                 # keep it
                 pass
             else:
-
                 path = os.path.join(pyqt_dir, f)
                 if os.path.isfile(path):
                     print('Removing file: ' + path)
