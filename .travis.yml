@@ -49,8 +49,10 @@ before_install:
   - cd "$TRAVIS_BUILD_DIR/.."; cd PyQt5-minimal
   - sudo wget -q $PYQT_URL
   - tar -xvf $PYQT_ARCHIVE >/dev/null
-  - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; sudo make install; cd $TRAVIS_BUILD_DIR
-
+  # We cannot use the makefile installer because it depends upon the python versions.
+  # - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; sudo make install; cd $TRAVIS_BUILD_DIR
+  - export PYQT_INSTALL_DIR="$HOME/miniconda/lib/python$TRAVIS_PYTHON_VERSION/site-packages/PyQt5"
+  - echo "Installing PyQt to python site-packages"; mkdir $PYQT_INSTALL_DIR; cd $PYQT_DIR; find . \( -name "*so" -o -name "*pyi" \) -not -name "lib*" -exec cp {} $PYQT_INSTALL_DIR \;
 
 install:
   - pip install -r ci_tools/requirements-setup.txt
