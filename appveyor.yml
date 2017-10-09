@@ -90,8 +90,10 @@ after_test:
   - python setup_cx_app.py build
   # - 7z a myapp.zip %APPVEYOR_BUILD_FOLDER%\path\to\bin\*.dll
   # rename dest folder
+  - cd build
   - set /p VER=<VERSION__
   - for /D %%A IN (*) DO REN "%%~fA" "envswitch-%VER%-%%~nA"
+  - cd ..
 
   # - "%PYTHON%\\python.exe setup_cx_app.py bdist_msi"
   - python setup_cx_app.py bdist_msi
