@@ -91,7 +91,7 @@ after_test:
   # - 7z a myapp.zip %APPVEYOR_BUILD_FOLDER%\path\to\bin\*.dll
   # rename dest folder
   - set /p VER=<VERSION__
-  - for /D %A IN (*) DO REN "%~fA" "envswitch-%VER%-%~nA"
+  - for /D %%A IN (*) DO REN "%%~fA" "envswitch-%VER%-%%~nA"
 
   # - "%PYTHON%\\python.exe setup_cx_app.py bdist_msi"
   - python setup_cx_app.py bdist_msi
