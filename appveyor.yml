@@ -89,6 +89,9 @@ after_test:
   # - "%PYTHON%\\python.exe setup_cx_app.py build"
   - python setup_cx_app.py build
   # - 7z a myapp.zip %APPVEYOR_BUILD_FOLDER%\path\to\bin\*.dll
+  # rename dest folder
+  - set /p VER=<VERSION__
+  - for /D %%A IN (*) DO REN "%%~fA" "envswitch-%VER%-%%~nA"
 
   # - "%PYTHON%\\python.exe setup_cx_app.py bdist_msi"
   - python setup_cx_app.py bdist_msi
@@ -98,10 +101,10 @@ after_test:
 
 artifacts:
   # bdist_wheel puts your built wheel in the dist directory
-  - path: 'build\exe.win-amd64-%PYTHON_VERSION%'
+  - path: 'build\envswitch-%VER%-exe.win-amd64-%PYTHON_VERSION%'
     type: zip
 
-  - path: 'build\exe.win32-%PYTHON_VERSION%'
+  - path: 'build\envswitch-%VER%-exe.win32-%PYTHON_VERSION%'
     type: zip
 
   - path: dist\*
