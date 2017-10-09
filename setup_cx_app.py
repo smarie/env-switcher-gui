@@ -88,7 +88,7 @@ def run(self):
     # first find the folder
     import glob
     all = [folder for folder in glob.glob(self.build_exe + '/**/PyQt5', recursive=True)]
-    if len(all) != 1:
+    if len(all) > 1:
         raise Exception('Found several PyQt5 folders... ' + str(all))
     pyqt_dir = all[0]
 

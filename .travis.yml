@@ -70,10 +70,10 @@ script:
 # ***tests: none for now since travis is linux***
 # TODO when done add the badges to readme and index [![Tests Status](https://smarie.github.io/env-switcher-gui/junit/junit-badge.svg?dummy=8484744)](https://smarie.github.io/env-switcher-gui/junit/report.html) [![codecov](https://codecov.io/gh/smarie/env-switcher-gui/branch/master/graph/badge.svg)](https://codecov.io/gh/smarie/env-switcher-gui)
   # - pytest --junitxml=reports/junit/junit.xml --html=reports/junit/report.html --cov-report term-missing --cov=./envswitch -v envswitch/tests/
+  - python setup_cx_app.py build
 
 after_success:
 # ***packaging for releases***
-  - python setup_cx_app.py build
   - python setup_cx_app.py build bdist_rpm  # the build is done again to generate the _VERSION_ bdist_msi bdist_mac bdist_dmg
   # trying to debug why bdist_rpm does not work : cat the file
   - find . -type f -name 'envswitch.spec' -exec cat {} \;
@@ -118,7 +118,7 @@ deploy:
       secure: "OUztM0kmyyh/4IvWQ0AK+8Th00Plj+sObBlDb1387ErHUMGPIF6XqfwlpeWkcn0Ev0ZrCeuY0jN1tOapsYCC2jxUqUXFHJXRFlfUdSBN0D8toyTTMIRZFi5o1j8YzgoIuj3g4J3uRvV6uW+ii7FvaNz705o8U5x4Mp0zz5Dy67AAczApIVEMHjOGdbt4rlPL8xKwgau5xmknDlLn7BejCTmvJhN+5CxzCRvIIvRdNfN43ItVOd0C5WiRydkeV8eJivFcABJX0TGfDOcR/6ds3sLXsdvfpF7UJSWfbV1V6F01e3ikh3Kjg193YBUX0JOlW9+kKnno7lN1Har76ZOQcjMG9P3diT8E6Al7QWyDvsxALWiLmW9mWaeEmnbT8vl4dE+IQlGGa7Vy1uNFbeNjyVzf9AcRi7K9pzka2HKL3lJrAu2Y6Q53fe658EoXXXuLg6teFS+gOAv4V+Bi8ExEyj1ap2Qi5+ohlJcWjBpLoPFnFuHldXuyYJnTfyQgNamt3LCLUmgdaYf8NOBUSKaiCUw9+kLdx3quJk/6phL4xtmfLGdTWVRt7FLiYjzOgd90inWcuCL+xHnBDjGoZBS2pgD1z1HsSEj4476yVnt4yXerm5Q5dBou765yD3TuQcS2i5XkMb4lqHWAZRL0mePL5U6zlDGyAPdTZxRukm65zg8="
     on:
       tags: true
-      python: 3.5  #only one of the builds have to be deployed
+      python: 3.5  # only one of the builds has to be deployed
     # server: https://test.pypi.org/legacy/
     distributions: "sdist bdist_wheel"
 
