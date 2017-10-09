@@ -88,6 +88,7 @@ def run(self):
     import glob
     # isolated files in root
     all = [file for file in glob.glob(self.build_exe + '/libQt*')]
+    all.append([file for file in glob.glob(self.build_exe + '/Qt*.dll')])
     for path in all:
         if os.path.isfile(path):
             print('Removing file: ' + path)
