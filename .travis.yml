@@ -91,7 +91,7 @@ after_success:
   # create a tar.gz in dist/, containing the exe for linux. Rename it envswitch-<version>-linux-...
   # see http://wiki.bash-hackers.org/syntax/pe#search_and_replace for the linux replace syntax
   - cd build;
-  - echo "Copying build/exe.* folder to build/envswitch.*"; find . -type d -iname 'exe.linux*' -exec bash -c 'cp -r ${0/.\/} envswitch-$(<VERSION__)-${0/.\/exe.}' {} \;;
+  - echo "Copying build/exe.* folder to build/envswitch.*"; find . -type d -iname 'exe.linux*' -exec bash -c 'cp -r ${0/.\/} envswitch-$(<../VERSION__)-${0/.\/exe.}' {} \;;
   - echo "Creating envswitch.*.tar.gz archive in dist/ folder"; find . -type d -iname 'envswitch*' -exec bash -c 'tar -zcvf ../dist/${0/.\/}.tar.gz ${0/.\/}' {} \;;
   - cd "$TRAVIS_BUILD_DIR";
 
