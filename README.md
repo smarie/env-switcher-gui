@@ -17,7 +17,8 @@ This is a kind of MVC pattern where
 * the **Model** is provided by `EnvSwitcherState` and deals with the configuration files and persistence.
 * the **Controller**, or the **Application**, is provided by `EnvSwitcherApp` and provides the Qt application boilerplate as well as persistence of the application settings (recent edited files).
 
-![EnvswitchDesign](https://raw.githubusercontent.com/smarie/env-switcher-gui/master/docs/DesignOverview.png) 
+
+[![EnvswitchDesign](https://raw.githubusercontent.com/smarie/env-switcher-gui/master/docs/DesignOverview.png)](https://raw.githubusercontent.com/smarie/env-switcher-gui/master/docs/DesignOverview.png)
 
 
 ### PyQt Code generation
