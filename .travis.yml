@@ -36,7 +36,7 @@ before_install:
   # - conda update -q conda NO !!!!  #  conda info -a  # Use this to debug conda
 
   # (c) base conda environment
-  - echo "conda-installing python, pip, and setuptools"; conda install "python=$TRAVIS_PYTHON_VERSION" "pip>=9.0.1" "setuptools=36" -q
+  - echo "conda-installing python, pip, sip, and setuptools"; conda install "python=$TRAVIS_PYTHON_VERSION" "sip" "pip>=9.0.1" "setuptools=36" -q
 
   # ****** Install Qt
   - cd "$TRAVIS_BUILD_DIR/.."; mkdir PyQt5-minimal; cd PyQt5-minimal
