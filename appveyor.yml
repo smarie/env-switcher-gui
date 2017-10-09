@@ -92,6 +92,7 @@ after_test:
   # rename dest folder
   - set /p VER=<VERSION__
   - cd build
+  - dir
   - for /D %%A IN (*) DO REN "%%~fA" "envswitch-%VER%-%%~nA"
   - dir
   - cd ..
@@ -104,10 +105,7 @@ after_test:
 
 artifacts:
   # bdist_wheel puts your built wheel in the dist directory
-  - path: 'build\envswitch-%VER%-exe.win-amd64-%PYTHON_VERSION%'
-    type: zip
-
-  - path: 'build\envswitch-%VER%-exe.win32-%PYTHON_VERSION%'
+  - path: 'build\envswitch-*'
     type: zip
 
   - path: dist\*
