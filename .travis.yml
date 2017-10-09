@@ -3,30 +3,26 @@ language: python
 # cache: pip
 
 python:
-  # We don't actually use the Travis Python, but this keeps it organized.
+  # We don't actually use the Travis Python since we use conda, but this keeps it organized.
   - "3.5"
   - "3.6"
 
 env:
-  matrix:
-  - QT_DIR=Qt5.6.3
-    QT_ARCHIVE=Qt5.6.3_lgpl_minimal-Linux-x86_64.tar.gz
-    QT_URL=https://github.com/smarie/PyQt5-minimal/releases/download/untagged-7ae3ea521adcb9d48257/Qt5.6.3_lgpl_minimal-Linux-x86_64.tar.gz
-    PYQT_DIR=PyQt5.6
-    PYQT_ARCHIVE=PyQt5.6_gpl_minimal-Linux-x86_64.tar.gz
-    PYQT_URL=https://github.com/smarie/PyQt5-minimal/releases/download/untagged-7ae3ea521adcb9d48257/PyQt5.6_gpl_minimal-Linux-x86_64.tar.gz
-
   global:
   - GH_REF: git@github.com:smarie/env-switcher-gui.git
+  - PYQT_DIR: PyQt5.6
+  - PYQT_ARCHIVE: PyQt5.6_gpl_minimal-Linux-x86_64.tar.gz
+  - PYQT_URL: https://github.com/smarie/PyQt5-minimal/releases/download/untagged-7ae3ea521adcb9d48257/PyQt5.6_gpl_minimal-Linux-x86_64.tar.gz
 
 before_install:
+  # (a) linux dependencies
   - sudo apt-get install pandoc
   - sudo apt-get install ant
   - sudo apt-get install ant-optional
   - sudo apt-get install rpm
   - sudo apt-get install alien
 
-  # *** install conda - from https://conda.io/docs/user-guide/tasks/use-conda-with-travis-ci.html
+  # (b) install conda - from https://conda.io/docs/user-guide/tasks/use-conda-with-travis-ci.html
   - echo "downloading miniconda"; if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
       sudo wget -q https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
     else
@@ -36,62 +32,59 @@ before_install:
   - echo "configuring miniconda"; hash -r; conda config --set always_yes yes --set changeps1 no
   # - conda update -q conda NO !!!!  #  conda info -a  # Use this to debug conda
 
-  # *** install base dependencies
-  - echo "conda-installing python, sip, pip, and setuptools"; conda install "python=$TRAVIS_PYTHON_VERSION" sip "pip>=9.0.1" "setuptools=36" -q
+  # (c) base conda environment
+  - echo "conda-installing python, pip, and setuptools"; conda install "python=$TRAVIS_PYTHON_VERSION" "pip>=9.0.1" "setuptools=36" -q
 
-  # ****** Install Qt
-  - cd "$TRAVIS_BUILD_DIR/.."; mkdir PyQt5-minimal; cd PyQt5-minimal
-  - sudo wget -q $QT_URL
-  - tar -xvf $QT_ARCHIVE >/dev/null
-  - echo "Installing Qt to path"; export PATH=$TRAVIS_BUILD_DIR/PyQt5-minimal/$QT_DIR/bin:$PATH ; cd $TRAVIS_BUILD_DIR
 
-  # ********* Install PyQt ***********
-  - cd "$TRAVIS_BUILD_DIR/.."; cd PyQt5-minimal
-  - sudo wget -q $PYQT_URL
-  - tar -xvf $PYQT_ARCHIVE >/dev/null
-  # We cannot use the makefile installer because it depends upon the python versions.
-  # - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; sudo make install; cd $TRAVIS_BUILD_DIR
-  - export PYQT_INSTALL_DIR="$HOME/miniconda/lib/python$TRAVIS_PYTHON_VERSION/site-packages/PyQt5"
-  - echo "Installing PyQt to python site-packages";
+install:
+  # (a) PyQt5-minimal
+  - cd "$TRAVIS_BUILD_DIR/.."
+  - echo "Downlading PyQt5-Minimal"; sudo wget -q $PYQT_URL
+  - echo "Extracting PyQt5-Minimal"; tar -xvf $PYQT_ARCHIVE >/dev/null
+  # We cannot use 'sudo make install' because it depends upon the python versions + Qt. Use workaround from https://github.com/smarie/PyQt5-minimal
+  - echo "Installing PyQt5 package in miniconda site-packages";
+    export PYQT_INSTALL_DIR="$HOME/miniconda/lib/python$TRAVIS_PYTHON_VERSION/site-packages/PyQt5";
     mkdir $PYQT_INSTALL_DIR; cd $PYQT_DIR;
     find . \( -name "*so" -o -name "*pyi" \) -not -name "lib*" -exec cp {} $PYQT_INSTALL_DIR \;;
     cp ./__init__.py $PYQT_INSTALL_DIR;
     ls -la $PYQT_INSTALL_DIR;
     cd "$TRAVIS_BUILD_DIR";
 
-install:
+  # (b) All other python dependencies
+  # - pip install pyqt5==5.6  # we do not rely on this wheel anymore but we use PyQt-minimal (see above)
   - pip install -r ci_tools/requirements-setup.txt
-  # Now in order to better control the size of our package, we do not rely on this wheel anymore but we compile PyQt (see above)
-  # - pip install pyqt5==5.6  #
   - pip install -r ci_tools/requirements-test.txt
   - pip install -r ci_tools/requirements-report.txt
   - pip install -r ci_tools/requirements-doc.txt
   - pip install codecov    # https://github.com/codecov/example-python. This is specific to travis integration
-# - pip install coveralls  # this is an alternative to codecov
 
 script:
-# - coverage run tests.py
+  # (a) check that the package can be installed (setup ok)
   - pip install . -v
-# ***tests: none for now since travis is linux***
-# TODO when done add the badges to readme and index [![Tests Status](https://smarie.github.io/env-switcher-gui/junit/junit-badge.svg?dummy=8484744)](https://smarie.github.io/env-switcher-gui/junit/report.html) [![codecov](https://codecov.io/gh/smarie/env-switcher-gui/branch/master/graph/badge.svg)](https://codecov.io/gh/smarie/env-switcher-gui)
+
+  # (b) tests: none for now since linux version of envswitch throws a NotImplemented exception when applying environments.
+  # TODO when done add the badges to readme and index [![Tests Status](https://smarie.github.io/env-switcher-gui/junit/junit-badge.svg?dummy=8484744)](https://smarie.github.io/env-switcher-gui/junit/report.html) [![codecov](https://codecov.io/gh/smarie/env-switcher-gui/branch/master/graph/badge.svg)](https://codecov.io/gh/smarie/env-switcher-gui)
   # - pytest --junitxml=reports/junit/junit.xml --html=reports/junit/report.html --cov-report term-missing --cov=./envswitch -v envswitch/tests/
-  - python setup_cx_app.py build
+
+  # (c) build the frozen version using cx_Freeze
+  - echo "Building Frozen distribution"; python setup_cx_app.py build
 
 after_success:
 # ***packaging for releases***
-  - python setup_cx_app.py build bdist_rpm  # the build is done again to generate the _VERSION_ bdist_msi bdist_mac bdist_dmg
-  # trying to debug why bdist_rpm does not work : cat the file
-  - find . -type f -name 'envswitch.spec' -exec cat {} \;
-  - find . -type f -wholename '**/rpm/BUILD/envswitch-*/INSTALLED_FILES' -exec cat {} \;
+  - echo "Building RPM package"; python setup_cx_app.py build bdist_rpm  # the build is done again to generate the VERSION__.     bdist_mac bdist_dmg
+  - echo "Information about RPM package (for debug):";
+    find . -type f -name 'envswitch.spec' -exec cat {} \;
+    find . -type f -wholename '**/rpm/BUILD/envswitch-*/INSTALLED_FILES' -exec cat {} \;
   # convert the rpm into a deb and move the generated file in dist/ folder
-  - find dist/ -type f -iname '*.rpm' -exec sudo alien -d {} \;
-  - find . -type f -iname '*.deb' -exec mv {} dist/ \;
+  - echo "Converting RPM into DEB";
+    find dist/ -type f -iname '*.rpm' -exec sudo alien -d {} \;
+    find . -type f -iname '*.deb' -exec mv {} dist/ \;
 
   # create a tar.gz in dist/, containing the exe for linux. Rename it envswitch-<version>-linux-...
   # see http://wiki.bash-hackers.org/syntax/pe#search_and_replace for the linux replace syntax
   - cd build;
   - echo "Copying build/exe.* folder to build/envswitch.*"; find . -type d -iname 'exe.linux*' -exec bash -c 'cp -r ${0/.\/} envswitch-$(<VERSION__)-${0/.\/exe.}' {} \;;
-  - echo "Creating envswitch.*.tar.gz archive in dist/ folder"; find . -type d -iname 'envswitch*' -exec bash -c 'tar -zcvf ../dist/${0/.\/}.tar.gz ${0/.\/}' {} \;;  # then create the archive
+  - echo "Creating envswitch.*.tar.gz archive in dist/ folder"; find . -type d -iname 'envswitch*' -exec bash -c 'tar -zcvf ../dist/${0/.\/}.tar.gz ${0/.\/}' {} \;;
   - cd "$TRAVIS_BUILD_DIR";
 
 # ***reporting***
@@ -100,6 +93,7 @@ after_success:
   - python ci_tools/generate-junit-badge.py  # generates the badge for the test results
   - codecov
   - pylint envswitch  # note that at the moment the report is simply lost, we dont transform the result into anything
+
 # ***documentation***
   - mkdocs build -f docs/mkdocs.yml
   - mv reports/junit site/
