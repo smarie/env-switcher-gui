@@ -12,10 +12,10 @@ env:
   - GH_REF: git@github.com:smarie/env-switcher-gui.git
   - QT_DIR: Qt5.6.3
   - QT_ARCHIVE: Qt5.6.3_lgpl_minimal-Linux-x86_64.tar.gz
-  - QT_URL: https://github.com/smarie/PyQt5-minimal/releases/download/0.1.0/Qt5.6.3_lgpl_minimal-Linux-x86_64.tar.gz
+  - QT_URL: https://github.com/smarie/PyQt5-minimal/releases/download/0.1.1/Qt5.6.3_lgpl_minimal-Linux-x86_64.tar.gz
   - PYQT_DIR: PyQt5.6
   - PYQT_ARCHIVE: PyQt5.6_gpl_py3.5_minimal-Linux-x86_64.tar.gz
-  - PYQT_URL: https://github.com/smarie/PyQt5-minimal/releases/download/0.1.0/PyQt5.6_gpl_py3.5_minimal-Linux-x86_64.tar.gz
+  - PYQT_URL: https://github.com/smarie/PyQt5-minimal/releases/download/0.1.1/PyQt5.6_gpl_py3.5_minimal-Linux-x86_64.tar.gz
 
 before_install:
   # (a) linux dependencies
