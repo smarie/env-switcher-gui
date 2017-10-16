@@ -54,8 +54,8 @@ install:
   - export PYQT_INSTALL_DIR="$HOME/miniconda/lib/python$TRAVIS_PYTHON_VERSION/site-packages/PyQt5";
     echo "Installing PyQt5 package from ${PYQT_DIR} to ${PYQT_INSTALL_DIR}";
     mkdir $PYQT_INSTALL_DIR; cd $PYQT_DIR;
-    echo "copy all interesting files *.so *.pyi *.pyd"; find . \( -name "*so" -o -name "*pyi" -o -name "*pyd" \) -not -name "lib*" -exec cp {} ${$PYQT_INSTALL_DIR} \; ;
-    echo "copy __init__.py"; cp ./__init__.py ${$PYQT_INSTALL_DIR};
+    echo "copy all interesting files *.so *.pyi *.pyd"; find . \( -name "*so" -o -name "*pyi" -o -name "*pyd" \) -not -name "lib*" -exec cp {} ${PYQT_INSTALL_DIR} \; ;
+    echo "copy __init__.py"; cp ./__init__.py ${PYQT_INSTALL_DIR};
     ls -la $PYQT_INSTALL_DIR;
     cd "$TRAVIS_BUILD_DIR";
 
