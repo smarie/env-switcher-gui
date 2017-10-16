@@ -36,7 +36,7 @@ install:
   - conda create -n envswitch python=%PYTHON_VERSION%
   - activate envswitch
   - conda install "sip" "pip>=9.0.1" "setuptools=36" -q
-  - conda install pypandoc -q
+  - conda install pypandoc pywin32 -q
 
   # (c) Install Qt in %APPVEYOR_BUILD_FOLDER%/%QT_DIR%
   - cd "%APPVEYOR_BUILD_FOLDER%/.."  # in windows PyQt does not depend on absolute path against qt, just dynamic PATH
