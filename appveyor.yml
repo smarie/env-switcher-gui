@@ -7,19 +7,24 @@ environment:
 #      MINICONDA: "C:\\Miniconda35"
     - PYTHON_VERSION: "3.6"
       MINICONDA: "C:\\Miniconda35-x64"
-      # *** NOT NEEDED ANYMORE SINCE WE USE THE ALL-IN-ONE PyQt-minimal archive ***
       QT_DIR: "Qt5.6.3"
       QT_ARCHIVE: Qt5.6.3_lgpl_minimal-Windows-x86_64-MinGW64
       QT_URL: https://github.com/smarie/PyQt5-minimal/releases/download/0.1.0/Qt5.6.3_lgpl_minimal-Windows-x86_64-MinGW64.tar.gz
       PYQT_DIR: "PyQt5.6"
       PYQT_ARCHIVE: PyQt5.6_gpl_py3.6_minimal-Windows-x86_64-MinGW64
       PYQT_URL: https://github.com/smarie/PyQt5-minimal/releases/download/0.1.0/PyQt5.6_gpl_py3.6_minimal-Windows-x86_64-MinGW64.tar.gz
+      # this version of pyqt is built using msys2/mingw64, it is therefore required on the path
+      MSYS2_DIR: "C:\\msys64"
+      MSYSTEM: MINGW64
 
 init:
   - "ECHO %PYTHON_VERSION% %MINICONDA%"
 
 # **** Miniconda version ****
 install:
+  # (a) setup msys2+mingw 64 (caching MSYS2 takes more time than installing it)
+  - echo "Setting up msys2 mingw 64 environment" & call ./ci_tools/setup_msys.bat
+
   # (a) setup conda, see  https://www.appveyor.com/docs/build-environment/#miniconda and http://help.appveyor.com/discussions/questions/6802-appveyor-with-conda
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
   - conda config --set always_yes yes --set changeps1 no
@@ -34,7 +39,7 @@ install:
 
   # (c) Install Qt in %APPVEYOR_BUILD_FOLDER%/%QT_DIR%
   - cd "%APPVEYOR_BUILD_FOLDER%/.."  # mkdir PyQt5-minimal; cd PyQt5-minimal
-  - echo "Downlading Qt" & sudo wget -q %QT_URL%
+  - echo "Downlading Qt" & appveyor DownloadFile %QT_URL% -FileName %QT_ARCHIVE%.tar.gz
   - echo "Extracting Qt 1/2" & 7z x %QT_ARCHIVE%.tar.gz > nul
   - echo "Extracting Qt 2/2" & 7z x %QT_ARCHIVE%.tar > nul
   - echo "Adding Qt to PATH" & set PATH=%APPVEYOR_BUILD_FOLDER%/%QT_DIR%/bin;%PATH% &
@@ -42,7 +47,7 @@ install:
 
   # (d) Install PyQt5-minimal in %APPVEYOR_BUILD_FOLDER%/%QT_DIR%
   - cd "%APPVEYOR_BUILD_FOLDER%/.."
-  - echo "Downlading PyQt5-Minimal"; sudo wget -q %PYQT_URL%
+  - echo "Downlading PyQt5-Minimal"; appveyor DownloadFile %PYQT_URL% -FileName %PYQT_ARCHIVE%.tar.gz
   - echo "Extracting PyQt5-Minimal 1/2"; 7z x %PYQT_ARCHIVE%.tar.gz > nul
   - echo "Extracting PyQt5-Minimal 2/2"; 7z x %PYQT_ARCHIVE%.tar > nul
   # We cannot use 'sudo make install' because it depends upon the python versions + Qt. Use workaround from https://github.com/smarie/PyQt5-minimal
