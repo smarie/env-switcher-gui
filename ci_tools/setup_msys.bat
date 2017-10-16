@@ -10,7 +10,7 @@ echo "-- Then update the rest of other components"
 bash -lc "pacman -Su --noconfirm"
 
 echo "-- load MinGW-w64 SEH (64bit/x86_64) posix and Dwarf-2 (32bit/i686) posix toolchains & related other tools, dependencies & components from MSYS2 REPO"
-bash -lc "pacman -S --needed --noconfirm base-devel git mercurial cvs wget p7zip"
+bash -lc "pacman -S --needed --noconfirm base-devel mercurial cvs wget p7zip"
 bash -lc "pacman -S --needed --noconfirm perl ruby python2 mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain"
 
 cd %APPVEYOR_BUILD_FOLDER%
