@@ -38,14 +38,14 @@ before_install:
   # (c) base conda environment
   - echo "conda-installing python, pip, sip, and setuptools"; conda install "python=$TRAVIS_PYTHON_VERSION" "sip" "pip>=9.0.1" "setuptools=36" -q
 
-  # (d) Install Qt
-  - cd "$TRAVIS_BUILD_DIR/.."; mkdir PyQt5-minimal; cd PyQt5-minimal
+  # (d) Install Qt in $TRAVIS_BUILD_DIR/$QT_DIR
+  - cd "$TRAVIS_BUILD_DIR/.."
   - sudo wget -q $QT_URL
   - tar -xvf $QT_ARCHIVE >/dev/null
-  - echo "Installing Qt to path"; export PATH=$TRAVIS_BUILD_DIR/PyQt5-minimal/$QT_DIR/bin:$PATH ; cd $TRAVIS_BUILD_DIR
+  - echo "Installing Qt to path"; export PATH=$TRAVIS_BUILD_DIR/$QT_DIR/bin:$PATH ; cd $TRAVIS_BUILD_DIR
 
 install:
-  # (a) PyQt5-minimal
+  # (a) Install PyQt5-minimal
   - cd "$TRAVIS_BUILD_DIR/.."
   - echo "Downlading PyQt5-Minimal"; sudo wget -q $PYQT_URL
   - echo "Extracting PyQt5-Minimal"; tar -xvf $PYQT_ARCHIVE >/dev/null
