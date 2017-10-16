@@ -42,7 +42,8 @@ before_install:
   - cd "$TRAVIS_BUILD_DIR/.."
   - sudo wget -q $QT_URL
   - tar -xvf $QT_ARCHIVE >/dev/null
-  - echo "Adding Qt to PATH"; export PATH=$TRAVIS_BUILD_DIR/../$QT_DIR/lib:$PATH;
+  - ls -la $TRAVIS_BUILD_DIR/../$QT_DIR/lib; ls -la $TRAVIS_BUILD_DIR/../$QT_DIR/bin
+  - echo "Adding Qt to PATH"; export PATH=$TRAVIS_BUILD_DIR/../$QT_DIR/lib:$TRAVIS_BUILD_DIR/../$QT_DIR/bin:$PATH;
     cd $TRAVIS_BUILD_DIR
 
 install:
