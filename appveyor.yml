@@ -45,7 +45,7 @@ install:
   - echo "Extracting Qt 2/2" & 7z x %QT_ARCHIVE%.tar > nul
   - echo "Adding Qt to PATH"
   - "set PATH=%APPVEYOR_BUILD_FOLDER%\\%QT_DIR%\\bin;%PATH%"
-  - dir %APPVEYOR_BUILD_FOLDER%/%QT_DIR%/bin
+  - "dir %APPVEYOR_BUILD_FOLDER%\\%QT_DIR%\\bin"
   - cd %APPVEYOR_BUILD_FOLDER%
 
   # (d) Install PyQt5-minimal in %APPVEYOR_BUILD_FOLDER%/%QT_DIR%
