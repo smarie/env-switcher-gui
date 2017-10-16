@@ -1,66 +1,60 @@
 environment:
 
   matrix:
-
-    # For Python versions available on Appveyor, see
-    # http://www.appveyor.com/docs/installed-software#python
-    # The list here is complete (excluding Python 2.6, which
-    # isn't covered by this document) at the time of writing.
-
-    # for miniconda :
-    # https://www.appveyor.com/docs/build-environment/#miniconda
-    # http://help.appveyor.com/discussions/questions/6802-appveyor-with-conda
-
-    #- PYTHON: "C:\\Python27"
-    #- PYTHON: "C:\\Python33"
-    #- PYTHON: "C:\\Python34"
-
     # Unfortunately this does not work with miniconda 32 bit: resulting cx_freeze still contains 64/32
 #    - PYTHON_VERSION: "3.5"
 #      PYTHON: "C:\\Python35"
 #      MINICONDA: "C:\\Miniconda35"
-    #- PYTHON: "C:\\Python27-x64"
-    #- PYTHON: "C:\\Python33-x64"
-    #  DISTUTILS_USE_SDK: "1"
-    #- PYTHON: "C:\\Python34-x64"
-    #  DISTUTILS_USE_SDK: "1"
-    - PYTHON_VERSION: "3.5"
-      PYTHON: "C:\\Python35-x64"
+    - PYTHON_VERSION: "3.6"
       MINICONDA: "C:\\Miniconda35-x64"
+      # *** NOT NEEDED ANYMORE SINCE WE USE THE ALL-IN-ONE PyQt-minimal archive ***
+      QT_DIR: "Qt5.6.3"
+      QT_ARCHIVE: Qt5.6.3_lgpl_minimal-Windows-x86_64-MinGW64
+      QT_URL: https://github.com/smarie/PyQt5-minimal/releases/download/0.1.0/Qt5.6.3_lgpl_minimal-Windows-x86_64-MinGW64.tar.gz
+      PYQT_DIR: "PyQt5.6"
+      PYQT_ARCHIVE: PyQt5.6_gpl_py3.6_minimal-Windows-x86_64-MinGW64
+      PYQT_URL: https://github.com/smarie/PyQt5-minimal/releases/download/0.1.0/PyQt5.6_gpl_py3.6_minimal-Windows-x86_64-MinGW64.tar.gz
 
 init:
-  - "ECHO %PYTHON_VERSION% %PYTHON% %MINICONDA%"
-
-## **** pip version. It works but  ****
-#install:
-#  # We need wheel installed to build wheels
-#  - "%PYTHON%\\python.exe -m pip install wheel"
-#  - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-setup.txt"
-#  - "%PYTHON%\\python.exe -m pip install pyqt5>=5.6"
-#  - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-test.txt"
-#  - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-report.txt"
-#  - "%PYTHON%\\python.exe -m pip install -r ci_tools/requirements-doc.txt"
-#  - "%PYTHON%\\python.exe -m pip install pypiwin32"
-#  - cinst pandoc
-#  - pandoc -v
-#  - "%PYTHON%\\python.exe -m pip install ."
+  - "ECHO %PYTHON_VERSION% %MINICONDA%"
 
 # **** Miniconda version ****
 install:
+  # (a) setup conda, see  https://www.appveyor.com/docs/build-environment/#miniconda and http://help.appveyor.com/discussions/questions/6802-appveyor-with-conda
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
-#  - conda config --set always_yes yes --set changeps1 no
-#  - conda update -q conda
-#  - conda info -a
-#  # - conda config --add channels bashtage
-#  # - conda install arch -y
-#  - "conda create -q -n test-environment python=%PYTHON_VERSION% wheel"
-#  - activate test-environment
-#  - conda install pyqt=5.6  # otherwise this creates issues with the packaging ?
-#  - conda install pywin32
-  - conda env create -f "ci_tools/conda_env.yml" -n envswitch
+  - conda config --set always_yes yes --set changeps1 no
+  # - conda update -q conda NO !!!!  #  conda info -a  # Use this to debug conda
+  # - conda env create -f "ci_tools/conda_env.yml" -n envswitch >> lets try differently
+
+  # (b) base conda environment
+  - conda create -n envswitch python=%PYTHON_VERSION%
   - activate envswitch
-#  - conda install pandoc -q
-  - pandoc -v
+  - conda install "sip" "pip>=9.0.1" "setuptools=36" -q
+  - conda install pypandoc -q
+
+  # (c) Install Qt in %APPVEYOR_BUILD_FOLDER%/%QT_DIR%
+  - cd %QT_DIR%  # mkdir PyQt5-minimal; cd PyQt5-minimal
+  - echo "Downlading Qt" & sudo wget -q %QT_URL%
+  - echo "Extracting Qt 1/2" & 7z x %QT_ARCHIVE%.tar.gz > nul
+  - echo "Extracting Qt 2/2" & 7z x %QT_ARCHIVE%.tar > nul
+  - echo "Adding Qt to PATH" & set PATH=%APPVEYOR_BUILD_FOLDER%/%QT_DIR%/bin;%PATH% &
+    cd %APPVEYOR_BUILD_FOLDER%
+
+  # (d) Install PyQt5-minimal in %APPVEYOR_BUILD_FOLDER%/%QT_DIR%
+  - cd "$TRAVIS_BUILD_DIR/.."
+  - echo "Downlading PyQt5-Minimal"; sudo wget -q $PYQT_URL
+  - echo "Extracting PyQt5-Minimal 1/2"; 7z x %PYQT_ARCHIVE%.tar.gz > nul
+  - echo "Extracting PyQt5-Minimal 2/2"; 7z x %PYQT_ARCHIVE%.tar > nul
+  # We cannot use 'sudo make install' because it depends upon the python versions + Qt. Use workaround from https://github.com/smarie/PyQt5-minimal
+  - set PYQT_INSTALL_DIR=%MINICONDA%/lib/python%PYTHON_VERSION%/site-packages/PyQt5 &
+    echo "Installing PyQt5 package from %PYQT_DIR% to %PYQT_INSTALL_DIR%" &
+    mkdir %PYQT_INSTALL_DIR% & cd %PYQT_DIR%
+    # the for loop seems to include the following lines when this is all in the same command. Splitting.
+  - echo "copy all interesting files *.pyi *.pyd" & for /r %%i in (*pyi *pyd) do xcopy /Y "%%i" %PYQT_INSTALL_DIR%
+  - echo "copy __init__.py" & xcopy /Y .\__init__.py %PYQT_INSTALL_DIR% &
+    cd %APPVEYOR_BUILD_FOLDER%
+
+  # (e) All other python dependencies
   - pip install -r ci_tools/requirements-test.txt
   - pip install -r ci_tools/requirements-setup.txt
   - pip install -r ci_tools/requirements-report.txt
@@ -83,21 +77,18 @@ test_script:
 
 after_test:
   # ***packaging for releases***
-  # source and wheel for PyPi >> this is already done in travis
+  # (a) source and wheel for PyPi >> this is already done in travis
   # - "build.cmd %PYTHON%\\python.exe setup.py sdist bdist_wheel"
-  # installer for github release
-  # - "%PYTHON%\\python.exe setup_cx_app.py build"
+
+  # (b) dist for github release
   - python setup_cx_app.py build
-  # - 7z a myapp.zip %APPVEYOR_BUILD_FOLDER%\path\to\bin\*.dll
-  # rename dest folder
+  # rename dist folder
   - set /p VER=<VERSION__
   - cd build
-  - dir
   - for /D %%A IN (*) DO REN "%%~fA" "envswitch-%VER%-%%~nA%%~xA"
-  - dir
   - cd ..
 
-  # - "%PYTHON%\\python.exe setup_cx_app.py bdist_msi"
+  # (c) installer for github release
   - python setup_cx_app.py bdist_msi
 
   # ***reporting >> this is already done in travis ***

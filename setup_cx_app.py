@@ -49,8 +49,8 @@ files_to_include = ['LICENSE', 'LICENSE-PyQt', 'LICENSE-Qt', version_file_cx_fre
 # unfortunately for some reason the dll files from the current anaconda env do not work,
 # while the one from root (Anaconda/Library/plugins/platforms) works, so we include the latter in the sources
 qt_platforms_folder = os.path.join(THIS_DIR, 'qt_resources', 'platforms')
-if sys.platform == "win32":
-    files_to_include.append((qt_platforms_folder, 'platforms')),  # in order to override the one gathered by cx_Freeze
+# if sys.platform == "win32":
+#    files_to_include.append((qt_platforms_folder, 'platforms')),  # in order to override the one gathered by cx_Freeze
 
 options = {
     # see http://cx-freeze.readthedocs.io/en/latest/distutils.html#build-exe
@@ -111,6 +111,11 @@ def run(self):
             if f.startswith('QtCore') or f.startswith('QtGui') or f.startswith('QtWidget') or f.startswith('Qt.') or f.startswith('__'):
                 # keep it
                 pass
+            elif f.startswith('platforms'):
+                # move it to the base folder. Note that this mechanism is not used anymore since we don't embed qt in pyqt-minimal anymore.
+                path = os.path.join(pyqt_dir, f)
+                print('Moving file: ' + path + ' to ' + self.build_exe)
+                shutil.move(path, self.build_exe)
             else:
                 path = os.path.join(pyqt_dir, f)
                 if os.path.isfile(path):
