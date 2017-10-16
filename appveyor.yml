@@ -22,6 +22,8 @@ init:
 
 # **** Miniconda version ****
 install:
+  - echo %PATH%
+
   # (a) setup msys2+mingw 64 (caching MSYS2 takes more time than installing it)
   - echo "Setting up msys2 mingw 64 environment" & call ./ci_tools/setup_msys.bat
 
@@ -44,6 +46,7 @@ install:
   - echo "Extracting Qt 2/2" & 7z x %QT_ARCHIVE%.tar > nul
   - echo "Adding Qt to PATH" & set PATH=%APPVEYOR_BUILD_FOLDER%/%QT_DIR%/bin;%PATH% &
     cd %APPVEYOR_BUILD_FOLDER%
+  - echo %PATH%
 
   # (d) Install PyQt5-minimal in %APPVEYOR_BUILD_FOLDER%/%QT_DIR%
   - cd "%APPVEYOR_BUILD_FOLDER%/.."
