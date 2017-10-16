@@ -39,13 +39,13 @@ install:
   - conda install pypandoc -q
 
   # (c) Install Qt in %APPVEYOR_BUILD_FOLDER%/%QT_DIR%
-  - cd "%APPVEYOR_BUILD_FOLDER%/.."  # mkdir PyQt5-minimal; cd PyQt5-minimal
+  - cd "%APPVEYOR_BUILD_FOLDER%/.."  # in windows PyQt does not depend on absolute path against qt, just dynamic PATH
   - echo "Downlading Qt" & appveyor DownloadFile %QT_URL% -FileName %QT_ARCHIVE%.tar.gz
   - echo "Extracting Qt 1/2" & 7z x %QT_ARCHIVE%.tar.gz > nul
   - echo "Extracting Qt 2/2" & 7z x %QT_ARCHIVE%.tar > nul
   - echo "Adding Qt to PATH"
-  - "set PATH=%APPVEYOR_BUILD_FOLDER%\\%QT_DIR%\\bin;%PATH%"
-  - "dir %APPVEYOR_BUILD_FOLDER%\\%QT_DIR%\\bin"
+  - "set PATH=%APPVEYOR_BUILD_FOLDER%\\..\\%QT_DIR%\\bin;%PATH%"
+  - "dir %APPVEYOR_BUILD_FOLDER%\\..\\%QT_DIR%\\bin"
   - cd %APPVEYOR_BUILD_FOLDER%
 
   # (d) Install PyQt5-minimal in %APPVEYOR_BUILD_FOLDER%/%QT_DIR%
