@@ -22,18 +22,17 @@ init:
 
 # **** Miniconda version ****
 install:
-  - echo %PATH% & where appveyor
 
   # (a) setup msys2+mingw 64 (caching MSYS2 takes more time than installing it)
   - echo "Setting up msys2 mingw 64 environment" & call ./ci_tools/setup_msys.bat
 
-  # (a) setup conda, see  https://www.appveyor.com/docs/build-environment/#miniconda and http://help.appveyor.com/discussions/questions/6802-appveyor-with-conda
+  # (b) setup conda, see  https://www.appveyor.com/docs/build-environment/#miniconda and http://help.appveyor.com/discussions/questions/6802-appveyor-with-conda
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
   - conda config --set always_yes yes --set changeps1 no
   # - conda update -q conda NO !!!!  #  conda info -a  # Use this to debug conda
   # - conda env create -f "ci_tools/conda_env.yml" -n envswitch >> lets try differently
 
-  # (b) base conda environment
+  # (b2) base conda environment
   - conda create -n envswitch python=%PYTHON_VERSION%
   - activate envswitch
   - conda install "sip" "pip>=9.0.1" "setuptools=36" -q
@@ -44,19 +43,17 @@ install:
   - echo "Downlading Qt" & appveyor DownloadFile %QT_URL% -FileName %QT_ARCHIVE%.tar.gz
   - echo "Extracting Qt 1/2" & 7z x %QT_ARCHIVE%.tar.gz > nul
   - echo "Extracting Qt 2/2" & 7z x %QT_ARCHIVE%.tar > nul
-  #- echo %PATH% & where appveyor
   - echo "Adding Qt to PATH"
   - "set PATH=%APPVEYOR_BUILD_FOLDER%\\%QT_DIR%\\bin;%PATH%"
   - cd %APPVEYOR_BUILD_FOLDER%
-  #- where appveyor
 
   # (d) Install PyQt5-minimal in %APPVEYOR_BUILD_FOLDER%/%QT_DIR%
   - cd "%APPVEYOR_BUILD_FOLDER%/.."
   - echo "Downlading PyQt5-Minimal" & appveyor DownloadFile %PYQT_URL% -FileName %PYQT_ARCHIVE%.tar.gz
   - echo "Extracting PyQt5-Minimal 1/2" & 7z x %PYQT_ARCHIVE%.tar.gz > nul
   - echo "Extracting PyQt5-Minimal 2/2" & 7z x %PYQT_ARCHIVE%.tar > nul
-  # We cannot use 'sudo make install' because it depends upon the python versions + Qt. Use workaround from https://github.com/smarie/PyQt5-minimal
-  - "set PYQT_INSTALL_DIR=%MINICONDA%\\lib\\python%PYTHON_VERSION%\\site-packages\\PyQt5"
+  # We cannot use 'mingw32-make install' because this is the version without the src, from https://github.com/smarie/PyQt5-minimal
+  - "set PYQT_INSTALL_DIR=%MINICONDA%\\envs\\envswitch\\Lib\\site-packages\\PyQt5"
   - echo "Installing PyQt5 package from %PYQT_DIR% to %PYQT_INSTALL_DIR%"
   - mkdir "%PYQT_INSTALL_DIR%" & cd "%PYQT_DIR%"
     # the for loop seems to include the following lines when this is all in the same command. Splitting.
