@@ -47,13 +47,12 @@ install:
 
   # (d) Install PyQt5-minimal in %APPVEYOR_BUILD_FOLDER%/%QT_DIR%
   - cd "%APPVEYOR_BUILD_FOLDER%/.."
-  - echo "Downlading PyQt5-Minimal"; appveyor DownloadFile %PYQT_URL% -FileName %PYQT_ARCHIVE%.tar.gz
-  - echo "Extracting PyQt5-Minimal 1/2"; 7z x %PYQT_ARCHIVE%.tar.gz > nul
-  - echo "Extracting PyQt5-Minimal 2/2"; 7z x %PYQT_ARCHIVE%.tar > nul
+  - echo "Downlading PyQt5-Minimal" & appveyor DownloadFile %PYQT_URL% -FileName %PYQT_ARCHIVE%.tar.gz
+  - echo "Extracting PyQt5-Minimal 1/2" & 7z x %PYQT_ARCHIVE%.tar.gz > nul
+  - echo "Extracting PyQt5-Minimal 2/2" & 7z x %PYQT_ARCHIVE%.tar > nul
   # We cannot use 'sudo make install' because it depends upon the python versions + Qt. Use workaround from https://github.com/smarie/PyQt5-minimal
-  - set PYQT_INSTALL_DIR=%MINICONDA%/lib/python%PYTHON_VERSION%/site-packages/PyQt5 &
-    echo "Installing PyQt5 package from %PYQT_DIR% to %PYQT_INSTALL_DIR%" &
-    mkdir %PYQT_INSTALL_DIR% & cd %PYQT_DIR%
+  - set PYQT_INSTALL_DIR=%MINICONDA%/lib/python%PYTHON_VERSION%/site-packages/PyQt5
+  - echo "Installing PyQt5 package from %PYQT_DIR% to %PYQT_INSTALL_DIR%" & mkdir %PYQT_INSTALL_DIR% & cd %PYQT_DIR%
     # the for loop seems to include the following lines when this is all in the same command. Splitting.
   - echo "copy all interesting files *.pyi *.pyd" & for /r %%i in (*pyi *pyd) do xcopy /Y "%%i" %PYQT_INSTALL_DIR%
   - echo "copy __init__.py" & xcopy /Y .\__init__.py %PYQT_INSTALL_DIR% &
