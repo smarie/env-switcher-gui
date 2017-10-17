@@ -27,6 +27,8 @@ install:
 
   # (a) setup msys2+mingw 64 (caching MSYS2 takes more time than installing it)
   - echo "Setting up msys2 mingw 64 environment" & call ./ci_tools/setup_msys.bat
+  # make sure that the first git on the path is still the original one, otherwise setuptools_scm wont work
+  - "set PATH=C:\\Program Files\\Git\\cmd;%PATH%"
 
   # (b) setup conda, see  https://www.appveyor.com/docs/build-environment/#miniconda and http://help.appveyor.com/discussions/questions/6802-appveyor-with-conda
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
