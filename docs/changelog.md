@@ -1,6 +1,7 @@
-### 1.2.1 - New packaging for releases - with linux
+### 1.2.1 - New packaging for releases - both minimal size
 
-* Added linux 64 distribution with minimal size, reusing independent project [PyQt5-minimal](https://github.com/smarie/PyQt5-minimal)
+* Fixed windows 64 distribution with minimal size so that it is now completely standalone. Reusing independent project [PyQt5-minimal](https://github.com/smarie/PyQt5-minimal)
+* Added linux 64 distribution with minimal size, reusing as well [PyQt5-minimal](https://github.com/smarie/PyQt5-minimal) 
 
 ### 1.2.0 - New packaging for releases
 
