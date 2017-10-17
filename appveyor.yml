@@ -22,6 +22,8 @@ init:
 
 # **** Miniconda version ****
 install:
+  # we will need to put git first in path later on
+  - where git
 
   # (a) setup msys2+mingw 64 (caching MSYS2 takes more time than installing it)
   - echo "Setting up msys2 mingw 64 environment" & call ./ci_tools/setup_msys.bat
