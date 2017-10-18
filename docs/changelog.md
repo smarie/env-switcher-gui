@@ -1,3 +1,7 @@
+### 1.3.0 - Popups on error
+
+* Added popups on error so that the GUI provides feedback when an action could not be performed
+
 ### 1.2.2 - Packaging fix and improvements
 
 * Fixed packaging for windows: the 'platforms' folder was missing

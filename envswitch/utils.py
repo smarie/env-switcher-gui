@@ -2,7 +2,6 @@ import sys
 
 import os
 
-
 version_file_cx_freeze = 'VERSION__'
 
 
@@ -19,7 +18,13 @@ def get_version():
             return f.read()
     else:
         import pkg_resources  # part of setuptools
-        return pkg_resources.require("envswitch")[0].version
+        from pkg_resources import DistributionNotFound
+        try:
+            return pkg_resources.require("envswitch")[0].version
+        except DistributionNotFound as e:
+            # this may happen if the module has not been even locally installed with "pip install ."
+            from setuptools_scm import get_version
+            return get_version()
 
 
 def get_resource_path(relative_path):
