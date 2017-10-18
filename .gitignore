@@ -97,3 +97,4 @@ eggs_tmp/
 eggs.pth
 site/
 reports/
+.coverage
