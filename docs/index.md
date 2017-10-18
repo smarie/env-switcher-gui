@@ -12,52 +12,16 @@ A typical use case is when you sometimes work behind a network proxy and sometim
 
 In addition, `envswitch` allows users to save environment definition files as `.yaml`, so as to ease the process of sharing such files among developers.
 
+The application comes in two flavours:
 
-## Standalone desktop app
+* A [Standalone application](./standalone) that includes a Graphical User Interface (GUI) and a commandline (CLI)
 
-### Install envswitch app
+* A [python package](./package) that can launch the GUI and CLI too
 
-You may install the envswitch app using the installers provided in the [releases](https://github.com/smarie/env-switcher-gui/releases/) page.
+You can get more information on how to install and launch the GUI and CLI in both modes in the corresponding sections.
 
-### Launch envswitch app
 
-Once the standalone app is installed, you simply have to launch the executable file (`envswitch.exe` on windows, `envswitch` on linux). 
-
-## For python developers: envswitch wheel
-
-### Prerequisite: install PyQt
-
-If you are using conda, it is recommended that you rely on `conda` to install `pyqt` rather than on `pip`:
-
-```bash
-> conda install pyqt>=5.6
-```
-
-Actually the above is **REALLY** recommended on Anaconda, as using pip to install pyqt in anaconda root may compromise your global conda environment (see [here](https://github.com/ContinuumIO/anaconda-issues/issues/1970)). 
-
-If you are not an Anaconda user then you have to manually install PyQt, since it is not included in the package dependencies in order to avoid the above to happen: 
-
-```bash
-> pip install pyqt5
-```
-
-### Install envswitch wheel
-
-Then,simply install as usual with pip:
-
-```bash
-> pip install envswitch
-```
-
-### Launch envswitch from terminal
-
-`envswitch` installs the following commandline entry points in your terminal:
-
-* `envswitch_gui` launches the GUI detached from the terminal
-* `envswitch_gui_debug` launches the GUI attached to the terminal. This allows to see the execution logs and potential error messages.
-* `envswitch` is the commandline entrypoint. Use `envswitch --help` for details
-
-## Example usage
+## Usage
 
 ### Configuration file
 
@@ -77,7 +41,7 @@ env_b:
 
 An optional special variable named 'name', can be provided in order to customize the name of the environment in the GUI. Note that you can provide any number of environments, and they do not necessarily have to contain the same variables.
 
-Here is a [template file](network_config.yml) for network configuration, to switch between proxy and no proxy states (see [here](https://github.com/smarie/develop-behind-proxy) for details).
+Here is a [template file](network_config.yml) for network configuration, to switch between proxy and no proxy states (see [here](https://smarie.github.io/develop-behind-proxy/) for details).
 
 ### GUI
 
@@ -90,16 +54,46 @@ The following screen capture shows the GUI loaded with a network proxy switching
 
 ### CLI
 
-The commandline version of envswitch provides an easy way to switch between environments. Instead of opening the GUI, clicking on the 'No proxy' tab and clicking on 'Apply', you may simply do it in the terminal:
+The commandline version of envswitch provides an easy way to switch between environments in addition to the GUI. Simply execute it without argument to get some help:
 
 ```bash
-> envswitch no_proxy
+> envswitch
+```
+
+yields
+
+```cmd
+Usage: envswitch [OPTIONS] COMMAND [ARGS]...
+
+  Envswitch commandline. Use 'envswitch COMMAND --help' to get help on any
+  specific command below.
+
+Options:
+  --version  Show the version and exit.
+  --help     Show this message and exit.
+
+Commands:
+  apply
+  list
+  open
+```
+
+There are commands for all main actions that can be done in the GUI. For example, instead of opening the GUI, clicking on the 'No proxy' tab and clicking on 'Apply', you may simply do it in the terminal:
+
+```bash
+> envswitch apply no_proxy
 ``` 
 
-Note that by default the configuration file used will be the last one edited with the GUI. If you wish to use another one, simply specify it with the `-f` option:
+Note that by default the configuration file used will be the last one edited with the GUI. If you wish to temporarily use another one, simply specify it with the `-f` option:
 
 ```bash
-> envswitch -f other_config.yml other_env_id
+> envswitch apply -f other_config.yml other_env_id
+```
+
+You can also open a configuration file in a permanent way. That file will be the default one available the next time the GUI is launched
+
+```bash
+> envswitch open other_config.yml
 ```
 
 

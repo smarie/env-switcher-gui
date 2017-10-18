@@ -45,12 +45,21 @@ else:
 # logging.getLogger().setLevel(logging.DEBUG)
 
 # ******** define what to include in the frozen version *********
-files_to_include = ['LICENSE', 'LICENSE-PyQt', 'LICENSE-Qt', version_file_cx_freeze, 'README.md']
+files_to_include = ['LICENSE', 'LICENSE-PyQt', 'LICENSE-Qt', version_file_cx_freeze, 'README.md', 'envswitch/resources']
+
+if sys.platform == "win32":
+    # we need a way to include the Qt 'platforms/' folder in the final folder.
+    # because cx_Freeze sometimes does not find the correct one, or does not find it at all.
+    # the best would be to detect qt's current path and find it relatively.
+    qt_dir = os.path.dirname(shutil.which('qmake'))
+    print('Found qt bin/ directory at : ' + qt_dir)
+    qt_platforms_folder = os.path.abspath(os.path.join(qt_dir, os.path.pardir, 'plugins', 'platforms'))
+    files_to_include.append((os.path.join(qt_platforms_folder, 'qwindows.dll'), 'platforms/qwindows.dll'))
+
 # unfortunately for some reason the dll files from the current anaconda env do not work,
 # while the one from root (Anaconda/Library/plugins/platforms) works, so we include the latter in the sources
-qt_platforms_folder = os.path.join(THIS_DIR, 'qt_resources', 'platforms')
-# if sys.platform == "win32":
-#    files_to_include.append((qt_platforms_folder, 'platforms')),  # in order to override the one gathered by cx_Freeze
+#     qt_platforms_folder = os.path.join(THIS_DIR, 'qt_resources', 'platforms')
+#     files_to_include.append((qt_platforms_folder, 'platforms')),  # in order to override the one gathered by cx_Freeze
 
 options = {
     # see http://cx-freeze.readthedocs.io/en/latest/distutils.html#build-exe
@@ -87,7 +96,7 @@ options = {
 super_run = build_exe.run
 def run(self):
     super_run(self)
-    print('HACK: removing unused parts of the PyQt5 package to reduce the final size')
+    print('Removing unused parts of the PyQt5 package to reduce the final size (if any)')
     import glob
     # isolated files in root
     # all = [file for file in glob.glob(self.build_exe + '/libQt*')]  # >> no, these are really needed
@@ -111,11 +120,29 @@ def run(self):
             if f.startswith('QtCore') or f.startswith('QtGui') or f.startswith('QtWidget') or f.startswith('Qt.') or f.startswith('__'):
                 # keep it
                 pass
-            elif f.startswith('platforms'):
-                # move it to the base folder. Note that this mechanism is not used anymore since we don't embed qt in pyqt-minimal anymore.
+            elif f == 'platforms':
+                # move it to the base_for_gui folder, and
+                # Note that this mechanism is not used anymore since we don't embed qt in pyqt-minimal anymore.
                 path = os.path.join(pyqt_dir, f)
+                dest_path = os.path.join(self.build_exe, f)
+                if os.path.exists(dest_path):
+                    print('Overriding platforms/ folder with the one found in PyQt')
+                    shutil.rmtree(dest_path)
                 print('Moving file: ' + path + ' to ' + self.build_exe)
                 shutil.move(path, self.build_exe)
+
+                # remove useless file 1
+                path1 = os.path.join(dest_path, 'qminimal.dll')
+                if os.path.exists(path1):
+                    print('Removing file: ' + path1)
+                    os.remove(path1)
+
+                # remove useless file 2
+                path2 = os.path.join(dest_path, 'qoffscreen.dll')
+                if os.path.exists(path2):
+                    print('Removing file: ' + path2)
+                    os.remove(path2)
+
             else:
                 path = os.path.join(pyqt_dir, f)
                 if os.path.isfile(path):
@@ -132,27 +159,44 @@ build_exe.run = run  # this is where we replace the methods with our hack
 # ********* define executables to create ****************
 executables = []
 if sys.platform == "win32":
-    # on Windows, create base=None for a console application (debug mode)
+    # GUI debug mode on Windows : use base_for_gui=None so that the commandline stays visible behind the GUI
     executables.append(
         Executable(script='envswitch/gui.py',
                    # initScript= (executed before script)
-                   targetName='envswitch_debug.exe',
+                   targetName='envswitch_gui_debug.exe',
                    base=None,
-                   # icon=
+                   icon='envswitch/resources/envswitch.ico'
                    )
     )
-    # AND create a GUI also
-    base = "Win32GUI"
+    # GUI normal mode will be without visible commandline.
+    base_for_gui = "Win32GUI"
+    exe_suffix = '.exe'
 else:
-    # other platforms seem ok
-    base = None
+    # For linux, there is no need to specify something else than None, since the user can choose by launching the
+    # executable with or without a trailing ampersand ('envswitch_gui&' or 'envswitch_gui')
+    base_for_gui = None
+    exe_suffix = ''
 
+# The GUI
 executables.append(
     # see http://cx-freeze.readthedocs.io/en/latest/distutils.html#cx-freeze-executable
     Executable(script='envswitch/gui.py',
                # initScript= (executed before script)
-               targetName='envswitch.exe',
-               base=base,
+               targetName='envswitch_gui' + exe_suffix,
+               base=base_for_gui,
+               icon='envswitch/resources/envswitch.ico',
+               shortcutName="envswitch",
+               shortcutDir="DesktopFolder"
+               )
+)
+
+# The CLI
+executables.append(
+    # see http://cx-freeze.readthedocs.io/en/latest/distutils.html#cx-freeze-executable
+    Executable(script='envswitch/cli.py',
+               # initScript= (executed before script)
+               targetName='envswitch' + exe_suffix,
+               base=None,
                # icon=
                )
 )

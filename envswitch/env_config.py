@@ -57,6 +57,24 @@ class EnvConfig:
         print("Applying environment DONE")
 
 
+class UnknownEnvIdException(Exception):
+    def __init__(self, msg):
+        """
+        There was once a bug with a test framework requiring this constructor to only have one argument, that's why we
+        provide a static constructor below with `create_from`
+        :param msg:
+        """
+        super(UnknownEnvIdException, self).__init__(msg)
+
+    @staticmethod
+    def create_from(env_id, available_envs_list):
+        e = UnknownEnvIdException("Environment id '" + env_id + "' is unknown in this configuration file. Available "
+                                  "environments: " + str(available_envs_list))
+        e.env_id = env_id
+        e.available_envs = available_envs_list
+        return e
+
+
 class GlobalEnvsConfig:
     """
     Represents the configuration for all environments
@@ -82,6 +100,26 @@ class GlobalEnvsConfig:
             return False
         else:
             return self.to_yaml() == other.to_yaml()
+
+    def get_available_envs(self):
+        """
+
+        :return: the list of available environments
+        """
+        return list(self.envs.keys())
+
+    def apply(self, env_id):
+        """
+        Applies environment 'id', or throws an error if that environment id does not exist
+
+        :param env_id: the environment id to apply
+        :return:
+        """
+        # if the environment required is known, apply it
+        if env_id in self.envs.keys():
+            self.envs[env_id].apply()
+        else:
+            raise UnknownEnvIdException.create_from(env_id, list(self.envs.keys()))
 
     def to_dict(self):
         """

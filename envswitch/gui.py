@@ -4,10 +4,23 @@ import os
 from typing import Dict, List
 from warnings import warn
 
+if getattr(sys, 'frozen', False):
+    # frozen (cx_Freeze) mode: trick to be sure that Qt loads correctly even when the cli is called form another folder
+    cur = os.getcwd()
+    os.chdir(os.path.abspath(os.path.dirname(sys.executable)))
+    # we can also set the icon path correctly
+    _abs_icon_path = os.path.join(os.path.abspath(os.path.dirname(sys.executable)), 'resources', 'envswitch.png')
+else:
+    # set the icon path for non-frozen mode
+    _abs_icon_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'resources', 'envswitch.png')
+
 from PyQt5.QtCore import pyqtSignal, QObject, QFileInfo, QSettings
-from PyQt5.QtGui import QCloseEvent
+from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QAbstractButton, QDialogButtonBox, QWidget, \
     QGridLayout, QFormLayout, QLabel, QLineEdit, QErrorMessage, QMessageBox
+if getattr(sys, 'frozen', False):
+    # frozen : set cwd back to normal now that Qt has been loaded
+    os.chdir(cur)
 
 from copy import deepcopy
 
@@ -538,131 +551,176 @@ class EnvSwitcherView(QMainWindow, Ui_MainWindow):
         self.state.current_configuration.envs[env_id].apply()
 
 
-class EnvSwitcherApp(QApplication):
-    """
-    The main EnvSwitch Application. (the 'Controller' in the MVC pattern)
-    * creates (and updates ?) views
-    * receives input events from the view
-    * query & modifies the internal_state
+class FileRestoreException(Exception):
+    pass
 
-    It is responsible to handle the current state, map it to persistence layer, and refresh the views
+
+class EnvSwitcherAppHeadless(QApplication):
+    """
+    A 'headless' version of the envswitcher app. It only contains the state and settings
     """
 
     SETTING_LAST_OPENED_FILE_PATH = 'configuration_file_path'
 
-    def __init__(self, headless: bool, argv, env_id: str=None, config_file_path: str=None):
+    def __init__(self, argv: list=None, config_file_path: str=None):
         """
-        Initializes the application
-        * either in gui mode (headless = False), in which case the arguments argv MUST be empty
-        * or in cli mode (headless = True) in which case the arguments will be used,
 
-        :param headless: a boolean indicating if the app has to be launched with a visible GUI (False) or without (True)
-        :param env_id: in headless mode only, this indicates the environment id to apply
-        :param config_file_path: in headless mode only, this indicates the alternate config file to use
-        :param argv: generic Qt arguments for the underlying Qt application
+        :param argv:
+        :param config_file_path: the alternate config file to use instead of the last one loaded by the app
         """
-        super(EnvSwitcherApp, self).__init__(argv)
+        # parent (QApplication) init
+        super(EnvSwitcherAppHeadless, self).__init__(argv or [])
 
         # ** Application / Controller (self) **
         # -- some qt-related fields that are useful to all the views created by the application
         self.setOrganizationName('smarie')
         self.setOrganizationDomain('github.com')
         self.setApplicationDisplayName('EnvSwitch')
-        # self.setApplicationName() automatically defaults to the executable name so dont modify it
+        self.setApplicationName('envswitch')  # defaults to the exec name, but we want the same across entry points
+        print('Icon path: ' + _abs_icon_path)
+        self.setWindowIcon(QIcon(_abs_icon_path))
         self.settings = QSettings()
 
-        if headless:
-            # config_file_path is either the one provided in cli argument or the last opened one
-            config_file_path = config_file_path or self.settings.value(EnvSwitcherApp.SETTING_LAST_OPENED_FILE_PATH,
-                                                                       type=str)
-            # try to open the file
-            try:
-                print("Trying to open file: " + config_file_path)
-                state = EnvSwitcherState(configuration_file_path=config_file_path)
-                print("Opened file successfully: " + config_file_path)
-            except Exception as e:
-                print("Could not restore last open file : " + str(e))
-                sys.exit(1)  # error
+        # set to none explicitly so that subclasses may see when init has failed
+        self.internal_state = None
 
-            # if the environment required is known, apply it
-            if env_id in state.current_configuration.envs.keys():
-                state.current_configuration.envs[env_id].apply()
-                sys.exit(0)  # success
-            else:
-                print("Environment id '" + env_id + "' is unknown in this configuration file. Available environments: "
-                      + str(list(state.current_configuration.envs.keys())))
-                sys.exit(1)  # error
-        else:
-            # ** View **
-            print("Creating Main View")
-            self.ui = EnvSwitcherView()
-            self.ui.show()  # Show so that the 'open file' dialog below can show
-
-            # ** Model **
+        if config_file_path is None:
+            # config_file_path = None means 'open the last opened file'
+            config_file_path = self.settings.value(EnvSwitcherApp.SETTING_LAST_OPENED_FILE_PATH, type=str)
             try:
-                # restore last known state if possible
-                config_file_path = self.settings.value(EnvSwitcherApp.SETTING_LAST_OPENED_FILE_PATH, type=str)
-                print("Trying to restore last open file: " + config_file_path)
+                print("Restoring last open file: " + config_file_path)
                 self.internal_state = EnvSwitcherState(configuration_file_path=config_file_path)
-                print("Restored last open file successfully: " + config_file_path)
+                print("Opened file successfully: " + config_file_path)
 
-            except Exception as e:  # FileNotFoundError, PermissionError:  # CouldNotRestoreStateException:
-                # not possible: we have to ask the user to open a configuration file
-                print("Could not restore last open file : " + str(e))
-                print("We need a configuration file, ask the user")
-                loaded = False
-                while not loaded:
-                    try:
-                        # ask the user to select a configuration file to open
-                        config_file_path, _ = QFileDialog.getOpenFileName(parent=self.ui,
-                                                                          caption='Open a Configuration File',
-                                                                          filter="Configuration files (*.yml *.yaml)")
-                        # 'cancel' will return without exception but with an empty config_file_path
-                        if config_file_path == '':
-                            print('User cancelled opening file. Terminating')
-                            sys.exit(1)
-                    except FileNotFoundError:
-                        # 'exit' button press will raise a FileNotFoundError
+            except Exception as e:  # FileNotFoundError, PermissionError, CouldNotRestoreStateException
+                raise FileRestoreException("Could not restore last open file : " + str(e)).with_traceback(
+                    e.__traceback__)
+        else:
+            # load the specified file
+            try:
+                print("Opening file: " + config_file_path)
+                self.internal_state = EnvSwitcherState(configuration_file_path=config_file_path)
+                print("Opened file successfully: " + config_file_path)
+
+            except Exception as e:  # FileNotFoundError, PermissionError, CouldNotRestoreStateException
+                raise FileRestoreException("Could not open file : " + str(e)).with_traceback(e.__traceback__)
+
+    def get_current_config_file_path(self) -> str:
+        """
+
+        :return: the path to the currently loaded file
+        """
+        return self.internal_state.current_config_file
+
+    def get_current_config(self) -> GlobalEnvsConfig:
+        """
+        Returns the currently loaded configuration. You can use it to get the list of available environments for
+        example, or to apply a given environment.
+
+        :return: the currently loaded configuration
+        """
+        return self.internal_state.current_configuration
+
+    def persist_last_opened_file(self):
+        """
+        Persists the currently opened file in the application's settings so that the next time it will load, it will
+        remember it
+
+        :return:
+        """
+        file_path = self.internal_state.current_config_file
+        print("saving last open file path for future launches : '" + file_path + "'")
+        self.settings.setValue(EnvSwitcherApp.SETTING_LAST_OPENED_FILE_PATH, file_path)
+
+
+class EnvSwitcherApp(EnvSwitcherAppHeadless):
+    """
+    The main EnvSwitch Application. (the 'Controller' in the MVC pattern)
+    * creates (and updates ?) views
+    * receives input events from the view
+    * query & modifies the internal_state
+
+    It is responsible to handle the current state, map it to persistence layer, and refresh the views.
+    """
+
+    def __init__(self, argv, config_file_path: str = None):
+        """
+        Initializes the application in gui mode
+
+        :param argv: generic Qt arguments for the underlying Qt application
+        :param config_file_path: the alternate config file to use instead of the last one loaded by the app
+        """
+
+        # ** Application + Model **
+        try:
+            # Super: init app and load settings, and try to open last known file
+            super(EnvSwitcherApp, self).__init__(argv, config_file_path=config_file_path)
+        except FileRestoreException:
+            # we will handle that below
+            pass
+
+        # ** View **
+        print("Creating Main View")
+        self.ui = EnvSwitcherView()
+        self.ui.show()  # Do this now, so that the 'open file' dialog below can show
+
+        # --Handle the case where no configuration file could be loaded in the constructor
+        if self.internal_state is None:
+            # this means that an error happened when opening
+            # we have to ask the user to open a configuration file
+            print("We need a configuration file, ask the user")
+            loaded = False
+            while not loaded:
+                try:
+                    # ask the user to select a configuration file to open
+                    config_file_path, _ = QFileDialog.getOpenFileName(parent=self.ui,
+                                                                      caption='Open a Configuration File',
+                                                                      filter="Configuration files (*.yml *.yaml)")
+                    # 'cancel' will return without exception but with an empty config_file_path
+                    if config_file_path == '':
                         print('User cancelled opening file. Terminating')
                         sys.exit(1)
-                    try:
-                        # try to create a state = try to open the configuration file
-                        self.internal_state = EnvSwitcherState(configuration_file_path=config_file_path)
-                        # remember the last opened file
-                        print("saving last open file path for future launches : '" + config_file_path + "'")
-                        self.settings.setValue(EnvSwitcherApp.SETTING_LAST_OPENED_FILE_PATH, config_file_path)
-                        loaded = True
-                    except TypeError as e:
-                        warn(str(e))
-                    except FileNotFoundError as f:
-                        warn(str(f))
+                except FileNotFoundError:
+                    # 'exit' button press will raise a FileNotFoundError
+                    print('User cancelled opening file. Terminating')
+                    sys.exit(1)
+                try:
+                    # try to create a state = try to open the configuration file
+                    self.internal_state = EnvSwitcherState(configuration_file_path=config_file_path)
+                    # remember the last opened file
+                    print("saving last open file path for future launches : '" + config_file_path + "'")
+                    self.settings.setValue(EnvSwitcherApp.SETTING_LAST_OPENED_FILE_PATH, config_file_path)
+                    loaded = True
+                except TypeError as e:
+                    warn(str(e))
+                except FileNotFoundError as f:
+                    warn(str(f))
 
-            # keep informed if the file changes
-            # noinspection PyUnresolvedReferences
-            self.internal_state.comm_qt.current_file_changed.connect(self.slot_current_file_changed)
+        # keep the application informed if the file changes so as to save the last file path in the app settings.
+        # noinspection PyUnresolvedReferences
+        self.internal_state.comm_qt.current_file_changed.connect(self.slot_current_file_changed)
 
-            # connect the view to the model
-            self.ui.set_model(self.internal_state)
-            print('Application ready')
+        # connect the view to the model
+        self.ui.set_model(self.internal_state)
+        print('Application ready')
 
     def slot_current_file_changed(self, file: QFileInfo):
-        print("saving last open file path for future launches : '" + str(file.filePath()) + "'")
-        self.settings.setValue(EnvSwitcherApp.SETTING_LAST_OPENED_FILE_PATH, file.filePath())
+        # self.persist_last_opened_file(file.filePath())
+        self.persist_last_opened_file()
 
 
-def main(headless: bool=False, env_id: str=None, config_file_path: str=None):
+def main(config_file_path: str=None):
     """
-    Main entry point both for headless and GUI mode
+    Main entry point for GUI mode
 
-    :param headless:
-    :param env_id:
-    :param config_file_path:
+    :param config_file_path: optional - to load the gui with a given conf file instead of the last opened one
     :return:
     """
     print('*** ENVSWITCH <' + get_version() + '> ***')
 
     # create the application (the frame around everything), passing in the possible commandline arguments
-    app = EnvSwitcherApp(headless, sys.argv[1:], env_id=env_id, config_file_path=config_file_path)
+    app = EnvSwitcherApp(sys.argv[1:], config_file_path=config_file_path)
+
     sys.exit(app.exec_())
 
 

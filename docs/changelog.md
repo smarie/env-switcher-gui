@@ -1,3 +1,12 @@
+### 1.2.2 - Packaging fix and improvements
+
+* Fixed packaging for windows: the 'platforms' folder was missing
+* Improved the CLI to create sub commands 'apply', 'list' (new) and 'open' (new).
+* Added an icon to the app
+* The windows installer now creates a shortcut on the desktop
+* The CLI is now embedded also in the standalone version, and can be executed from other working directories (solved a Qt import issue)
+* Improved documentation
+
 ### 1.2.1 - New packaging for releases - both minimal size
 
 * Fixed windows 64 distribution with minimal size so that it is now completely standalone. Reusing independent project [PyQt5-minimal](https://github.com/smarie/PyQt5-minimal)
