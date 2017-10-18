@@ -11,6 +11,22 @@
 
     
     <url>
+     <loc>/standalone/</loc>
+     <lastmod>2017-10-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/package/</loc>
+     <lastmod>2017-10-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
      <loc>/changelog/</loc>
      <lastmod>2017-10-18</lastmod>
      <changefreq>daily</changefreq>

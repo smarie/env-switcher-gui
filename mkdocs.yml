@@ -3,6 +3,8 @@ site_name: envswitch
 repo_url: https://github.com/smarie/env-switcher-gui
 pages:
     - Home: index.md
+    - Standalone desktop app: standalone.md
+    - Python package: package.md
     #- Usage details: usage.md
     - Changelog: changelog.md
 theme: material  # readthedocs  mkdocs

@@ -10,20 +10,20 @@
       
       
       
-        <link rel="shortcut icon" href="/assets/images/favicon.png">
+        <link rel="shortcut icon" href="../assets/images/favicon.png">
       
       <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.10.3">
     
     
       
-        <title>envswitch</title>
+        <title>Standalone desktop app - envswitch</title>
       
     
     
-      <script src="/assets/javascripts/modernizr-e826f8942a.js"></script>
+      <script src="../assets/javascripts/modernizr-e826f8942a.js"></script>
     
     
-      <link rel="stylesheet" href="/assets/stylesheets/application-9011e2d3f8.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application-9011e2d3f8.css">
       
     
     
@@ -61,7 +61,7 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        <a href="/" title="envswitch" class="md-header-nav__button md-logo">
+        <a href=".." title="envswitch" class="md-header-nav__button md-logo">
           
             <i class="md-icon md-icon--home"></i>
           
@@ -74,7 +74,9 @@
         <span class="md-flex__ellipsis md-header-nav__title">
           
             
-            envswitch
+              
+            
+            Standalone desktop app
           
         </span>
       </div>
@@ -184,7 +186,7 @@
 
 
   <li class="md-nav__item">
-    <a href="/" title="Home" class="md-nav__link">
+    <a href=".." title="Home" class="md-nav__link">
       Home
     </a>
   </li>
@@ -194,11 +196,61 @@
       
       
 
+  
 
-  <li class="md-nav__item">
-    <a href="/standalone/" title="Standalone desktop app" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Standalone desktop app
+      </label>
+    
+    <a href="./" title="Standalone desktop app" class="md-nav__link md-nav__link--active">
       Standalone desktop app
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" title="Installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gui" title="GUI" class="md-nav__link">
+    GUI
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli" title="CLI" class="md-nav__link">
+    CLI
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
     
@@ -208,7 +260,7 @@
 
 
   <li class="md-nav__item">
-    <a href="/package/" title="Python package" class="md-nav__link">
+    <a href="../package/" title="Python package" class="md-nav__link">
       Python package
     </a>
   </li>
@@ -220,7 +272,7 @@
 
 
   <li class="md-nav__item">
-    <a href="/changelog/" title="Changelog" class="md-nav__link">
+    <a href="../changelog/" title="Changelog" class="md-nav__link">
       Changelog
     </a>
   </li>
@@ -233,12 +285,71 @@
               </div>
             
             
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" title="Installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gui" title="GUI" class="md-nav__link">
+    GUI
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli" title="CLI" class="md-nav__link">
+    CLI
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content">
             <article class="md-content__inner md-typeset">
               
-  <h1>404 - Not found</h1>
-
+                
+                  <a href="https://github.com/smarie/env-switcher-gui/edit/master/docs/standalone.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="standalone-desktop-application">Standalone desktop application<a class="headerlink" href="#standalone-desktop-application" title="Permanent link">&para;</a></h1>
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<p>You may install the <code>envswitch</code> application using the installers or the distribution archives provided in the <a href="https://github.com/smarie/env-switcher-gui/releases/">releases</a> page. </p>
+<p>Select the distribution adapted to your computer, and simply install or extract in the folder of your choice. Note that for windows you have two choices: a MSI installer or a simple ZIP file to extract anywhere. </p>
+<h2 id="gui">GUI<a class="headerlink" href="#gui" title="Permanent link">&para;</a></h2>
+<p>Once the application is installed/extracted, start envswitch from the main executable file (<code>envswitch_gui</code>) in the installation folder. </p>
+<p>On windows, if you used the MSI installer a desktop shortcut is available. On windows also, for debugging purposes, an alternate launcher is available as <code>envswitch_gui_debug</code>, so as to have the possibility to see the execution logs in a terminal.</p>
+<p>At first launch the application will ask you for a configuration file. You may wish to download one from <a href="../network_config.yml">here</a> and possibly adapt it to your needs. Also see <a href="../index#usage">Usage</a></p>
+<h2 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h2>
+<p>The commandline utility is available in the same folder, it is named <code>envswitch</code>.</p>
+                
+                  
+                
+              
               
                 
               
@@ -249,6 +360,41 @@
       
         
 <footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href=".." title="Home" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Home
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../package/" title="Python package" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Python package
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -269,10 +415,10 @@
       
     </div>
     
-      <script src="/assets/javascripts/application-f3ab9e5ff8.js"></script>
+      <script src="../assets/javascripts/application-f3ab9e5ff8.js"></script>
       
       
-      <script>app.initialize({url:{base:""}})</script>
+      <script>app.initialize({url:{base:".."}})</script>
       
     
     
