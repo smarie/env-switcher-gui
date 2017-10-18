@@ -48,6 +48,11 @@ def test_list_available_envs(config_file_name: str):
         conf = GlobalEnvsConfig.from_yaml(f)
         assert type(conf) == GlobalEnvsConfig
 
-    # assert that the list of available environments is the same when we use the app to open it
-    app = EnvSwitcherAppHeadless(config_file_path=conf_file_path)
-    assert conf.get_available_envs() == app.get_current_config().get_available_envs()
+    try:
+        # assert that the list of available environments is the same when we use the app to open it
+        app = EnvSwitcherAppHeadless(config_file_path=conf_file_path)
+        assert conf.get_available_envs() == app.get_current_config().get_available_envs()
+    except Exception as e:
+        print(e)
+        raise e from e
+

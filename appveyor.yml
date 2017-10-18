@@ -91,7 +91,8 @@ test_script:
   # to put the Python version you want to use on PATH.
   # - "%PYTHON%\\python.exe setup.py test"
   # - python setup.py test
-  - pytest --junitxml=reports/junit/junit.xml --html=reports/junit/report.html --cov-report term-missing --cov=./envswitch -v envswitch/tests/
+  # wrapping in cmd so as to see the error ?
+  - cmd: pytest --junitxml=reports/junit/junit.xml --html=reports/junit/report.html --cov-report term-missing --cov=./envswitch -v envswitch/tests/
 
 after_test:
   # ***packaging for releases***
