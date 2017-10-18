@@ -52,7 +52,7 @@ install:
   - echo "Downlading PyQt5-Minimal"; sudo wget -q $PYQT_URL
   - echo "Extracting PyQt5-Minimal"; tar -xvf $PYQT_ARCHIVE >/dev/null
   # new fast way: now simply move the folder in the right place
-  - mv %PYQT_DIR% $HOME/miniconda/lib/python$TRAVIS_PYTHON_VERSION/site-packages/
+  - mv $PYQT_DIR $HOME/miniconda/lib/python$TRAVIS_PYTHON_VERSION/site-packages/
   # We cannot use 'sudo make install' because it depends upon the python versions + Qt. Use workaround from https://github.com/smarie/PyQt5-minimal
   - export PYQT_INSTALL_DIR="$HOME/miniconda/lib/python$TRAVIS_PYTHON_VERSION/site-packages/PyQt5"
 #    echo "Installing PyQt5 package from ${PYQT_DIR} to ${PYQT_INSTALL_DIR}";
