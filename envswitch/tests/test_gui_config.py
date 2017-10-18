@@ -39,6 +39,7 @@ def test_load_gui_config(config_file_name: str):
         os.remove(fpath)
 
 
+@pytest.mark.skip_in_ci
 @pytest.mark.parametrize("config_file_name", os.listdir(os.path.join(THIS_DIR, 'data')))
 def test_list_available_envs(config_file_name: str):
     conf_file_path = os.path.join(THIS_DIR, 'data', config_file_name)

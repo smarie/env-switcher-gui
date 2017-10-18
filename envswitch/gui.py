@@ -273,10 +273,12 @@ class EnvSwitcherView(QMainWindow, Ui_MainWindow):
 
         # **** connect buttons and menu actions to events
         # -- save
-        self.mainButtonBox.accepted.connect(save_config_hook or self.lslot_save_config)
-        self.actionSave.triggered.connect(save_config_hook or self.lslot_save_config)
+        save_hook = save_config_hook or self.lslot_save_config
+        self.mainButtonBox.accepted.connect(save_hook)
+        self.actionSave.triggered.connect(save_hook)
         # -- cancel
-        self.mainButtonBox.rejected.connect(cancel_modifications_hook or self.lslot_cancel_modifications)
+        cancel_hook = cancel_modifications_hook or self.lslot_cancel_modifications
+        self.mainButtonBox.rejected.connect(cancel_hook)
         # -- apply
         apply_current_tab_hook = apply_current_tab_hook or self.lslot_apply_current_env
         def clicked_hook(button: QAbstractButton):
@@ -577,7 +579,7 @@ class EnvSwitcherAppHeadless(QApplication):
         self.setOrganizationDomain('github.com')
         self.setApplicationDisplayName('EnvSwitch')
         self.setApplicationName('envswitch')  # defaults to the exec name, but we want the same across entry points
-        print('Icon path: ' + _abs_icon_path)
+        # print('Icon path: ' + _abs_icon_path)
         self.setWindowIcon(QIcon(_abs_icon_path))
         self.settings = QSettings()
 
