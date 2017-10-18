@@ -9,10 +9,10 @@ environment:
       MINICONDA: "C:\\Miniconda35-x64"
       QT_DIR: "Qt5.6.3"
       QT_ARCHIVE: Qt5.6.3_lgpl_minimal-Windows-x86_64-MinGW64
-      QT_URL: https://github.com/smarie/PyQt5-minimal/releases/download/0.1.0/Qt5.6.3_lgpl_minimal-Windows-x86_64-MinGW64.tar.gz
-      PYQT_DIR: "PyQt5.6"
+      QT_URL: https://github.com/smarie/PyQt5-minimal/releases/download/0.2.0/Qt5.6.3_lgpl_minimal-Windows-x86_64-MinGW64.tar.gz
+      PYQT_DIR: "PyQt5"
       PYQT_ARCHIVE: PyQt5.6_gpl_py3.6_minimal-Windows-x86_64-MinGW64
-      PYQT_URL: https://github.com/smarie/PyQt5-minimal/releases/download/0.1.0/PyQt5.6_gpl_py3.6_minimal-Windows-x86_64-MinGW64.tar.gz
+      PYQT_URL: https://github.com/smarie/PyQt5-minimal/releases/download/0.2.0/PyQt5.6_gpl_py3.6_minimal-Windows-x86_64-MinGW64.tar.gz
       # this version of pyqt is built using msys2/mingw64, it is therefore required on the path
       MSYS2_DIR: "C:\\msys64"
       MSYSTEM: MINGW64
@@ -52,20 +52,22 @@ install:
   - "dir %APPVEYOR_BUILD_FOLDER%\\..\\%QT_DIR%\\bin"
   - cd %APPVEYOR_BUILD_FOLDER%
 
-  # (d) Install PyQt5-minimal in %APPVEYOR_BUILD_FOLDER%/%QT_DIR%
+  # (d) Install PyQt5-minimal
   - cd "%APPVEYOR_BUILD_FOLDER%/.."
   - echo "Downlading PyQt5-Minimal" & appveyor DownloadFile %PYQT_URL% -FileName %PYQT_ARCHIVE%.tar.gz
   - echo "Extracting PyQt5-Minimal 1/2" & 7z x %PYQT_ARCHIVE%.tar.gz > nul
   - echo "Extracting PyQt5-Minimal 2/2" & 7z x %PYQT_ARCHIVE%.tar > nul
+  # new fast way: now simply move the folder in the right place
+  - "MOVE %PYQT_DIR% %MINICONDA%\\envs\\envswitch\\Lib\\site-packages"
   # We cannot use 'mingw32-make install' because this is the version without the src, from https://github.com/smarie/PyQt5-minimal
   - "set PYQT_INSTALL_DIR=%MINICONDA%\\envs\\envswitch\\Lib\\site-packages\\PyQt5"
-  - echo "Installing PyQt5 package from %PYQT_DIR% to %PYQT_INSTALL_DIR%"
-  - mkdir "%PYQT_INSTALL_DIR%" & cd "%PYQT_DIR%"
-    # the for loop seems to include the following lines when this is all in the same command. Splitting.
-  - echo "copy all interesting files *.pyi *.pyd"
-  - for /r %%i in (*pyi *pyd) do xcopy /Y "%%i" "%PYQT_INSTALL_DIR%"
-  - echo "copy __init__.py"
-  - xcopy /Y .\__init__.py %PYQT_INSTALL_DIR%
+#  - echo "Installing PyQt5 package from %PYQT_DIR% to %PYQT_INSTALL_DIR%"
+#  - mkdir "%PYQT_INSTALL_DIR%" & cd "%PYQT_DIR%"
+#    # the for loop seems to include the following lines when this is all in the same command. Splitting.
+#  - echo "copy all interesting files *.pyi *.pyd"
+#  - for /r %%i in (*pyi *pyd) do xcopy /Y "%%i" "%PYQT_INSTALL_DIR%"
+#  - echo "copy __init__.py"
+#  - xcopy /Y .\__init__.py %PYQT_INSTALL_DIR%
   - dir %PYQT_INSTALL_DIR%
   - cd %APPVEYOR_BUILD_FOLDER%
 
