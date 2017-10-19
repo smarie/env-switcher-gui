@@ -12,8 +12,15 @@ import platform
 from typing import Dict, Any
 
 
-def print_external_env_var(var_name):
-    print('Value for ' + var_name + ' is : ' + get_external_env_var(var_name))
+def print_external_env_var(var_name, whole_machine: bool=False):
+    """
+
+    :param var_name:
+    :param whole_machine: if True the env variables will be read from the MACHINE level. If False it will be read from
+    USER level
+    :return:
+    """
+    print('Value for ' + var_name + ' is : ' + get_external_env_var(var_name, whole_machine=whole_machine))
 
 
 # def getenv(var_name, q: mp.Queue):
@@ -26,7 +33,7 @@ def print_external_env_var(var_name):
 #     q.put(os.getenv(var_name))
 
 
-def get_external_env_var(var_name, whole_machine: bool):
+def get_external_env_var(var_name, whole_machine: bool=False):
     """
     Similar to  os.getenv(var_name) but uses a command process to check the variable value out of this process
 
@@ -38,11 +45,11 @@ def get_external_env_var(var_name, whole_machine: bool):
     case = check_platform_and_get_case()
     if case is WINDOWS:
         from envswitch.env_api_winimpl import get_env_with_cmd_win
-        return get_env_with_cmd_win(var_name)
+        return get_env_with_cmd_win(var_name, whole_machine=whole_machine)
 
     elif case is LINUX:
         from envswitch.env_api_linuximpl import get_env_with_cmd_linux
-        return get_env_with_cmd_linux(var_name)
+        return get_env_with_cmd_linux(var_name, whole_machine=whole_machine)
 
     else:
         raise NotImplementedError('Code for this platform is missing in envswitch, please create an issue '
