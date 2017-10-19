@@ -1,3 +1,8 @@
+### 1.4.0 - New settings
+
+* Added a settings menu in order to choose whether to apply the environment variables for current user (default) or local machine. Settings are persisted
+* Refactoring: all file-related stuff is now in a separate class
+
 ### 1.3.0 - Popups on error
 
 * Added popups on error so that the GUI provides feedback when an action could not be performed

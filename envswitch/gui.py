@@ -1,7 +1,9 @@
 import sys
 
 import os
+from abc import abstractmethod
 from contextlib import ContextDecorator
+from functools import partial
 from traceback import format_exception
 from typing import Dict, List
 from warnings import warn
@@ -44,19 +46,20 @@ class DirtyStateException(Exception):
     configuration first"""
 
 
-class Communicate(QObject):
+class StateSignals(QObject):
     """
     see http://pyqt.sourceforge.net/Docs/PyQt5/signals_slots.html#PyQt5.QtCore.pyqtSignal : we have to create an
     independent class
 
-    We define two signals here
-    * rslot_current_config_changed_or_saved that will be triggered whenever the current configuration is modified
+    We define three signals here
+    * current_config_changed_or_saved that will be triggered whenever the current configuration is modified
     (for example, the user edits the form), or is saved.
-    * rslot_current_file_changed that will be triggered whenever the current opened file changes (a new file is opened
+    * current_file_changed that will be triggered whenever the current opened file changes (a new file is opened
     for example).
+    * settings_changed that will be triggered whenever some settings changes
     """
     current_config_changed_or_saved = pyqtSignal(QObject)  # the arg is the cause
-    current_file_changed = pyqtSignal(QFileInfo)
+    current_file_changed = pyqtSignal()  # QFileInfo
 
 
 class EnvSwitcherState:  # maybe one day convert to a QStandardItemModel ?
@@ -78,8 +81,9 @@ class EnvSwitcherState:  # maybe one day convert to a QStandardItemModel ?
 
         :param configuration_file_path: the path of the configuration file to open.
         """
+
         # channel to communicate that the current configuration has changed or the file has changed
-        self.comm_qt = Communicate()
+        self.signals = StateSignals()
 
         # init the fields so that the IDE knows them :)
         self.current_configuration = None
@@ -121,8 +125,8 @@ class EnvSwitcherState:  # maybe one day convert to a QStandardItemModel ?
         self._current_config_file = new_conf_file_path
 
         # alert of the changes
-        self.comm_qt.current_file_changed.emit(QFileInfo(new_conf_file_path))
-        self.comm_qt.current_config_changed_or_saved.emit(None)
+        self.signals.current_file_changed.emit()  # QFileInfo(new_conf_file_path)
+        self.signals.current_config_changed_or_saved.emit(None)
 
     def is_dirty(self):
         return self.current_configuration != self.current_configuration_bak
@@ -149,7 +153,7 @@ class EnvSwitcherState:  # maybe one day convert to a QStandardItemModel ?
                 self.current_configuration_bak = deepcopy(self.current_configuration)
                 # alert the view
                 # noinspection PyUnresolvedReferences
-                self.comm_qt.current_config_changed_or_saved.emit(None)
+                self.signals.current_config_changed_or_saved.emit(None)
         else:
             raise CouldNotSaveCurrentConfigurationException('File does not exist any more: ' + self.current_config_file)
 
@@ -179,7 +183,7 @@ class EnvSwitcherState:  # maybe one day convert to a QStandardItemModel ?
         self.current_configuration = deepcopy(self.current_configuration_bak)
         # alert the view
         # noinspection PyUnresolvedReferences
-        self.comm_qt.current_config_changed_or_saved.emit(None)
+        self.signals.current_config_changed_or_saved.emit(None)
 
     def get_env_ids(self) -> List[str]:
         return list(self.current_configuration.envs)
@@ -204,7 +208,7 @@ class EnvSwitcherState:  # maybe one day convert to a QStandardItemModel ?
 
         # emit the 'data changed' message
         # noinspection PyUnresolvedReferences
-        self.comm_qt.current_config_changed_or_saved.emit(cause)
+        self.signals.current_config_changed_or_saved.emit(cause)
 
     def create_slot_set_env_variable(self, env_id, var_name, var_value_editor):
         """
@@ -218,6 +222,17 @@ class EnvSwitcherState:  # maybe one day convert to a QStandardItemModel ?
         def set_env_variable(x):
             self.set_env_variable(env_id, var_name, x, var_value_editor)
         return set_env_variable
+
+    def apply(self, env_id: str, whole_machine: bool):
+        """
+        Applies the given environment
+
+        :param env_id:
+        :param whole_machine: a boolean indicating if environment applications should apply to whole machine
+        (True) or to local user (False)
+        :return:
+        """
+        self.current_configuration.apply(env_id, whole_machine=whole_machine)
 
 
 class PopupOnError(ContextDecorator):
@@ -239,7 +254,225 @@ class PopupOnError(ContextDecorator):
                                  QMessageBox.NoButton)
 
 
-class EnvSwitcherView(QMainWindow, Ui_MainWindow):
+class FileAwareMixin(QWidget):
+    """
+    A helper class for main windows that handle files.
+    It performs most of the logic and catches exceptions in Popups
+    """
+
+    def setup_file_aware(self, file_type_short: str, file_extensions: List[str], enable_when_dirty: List[QObject],
+                         open_signals: List, save_signals: List, save_as_signals: List, cancel_signals: List,
+                         quit_signals: List):
+        """
+        This function needs to be called once in order to configure the object
+        :param enable_when_dirty:
+        :return:
+        """
+        self.file_type_short = file_type_short
+        self.file_extensions = file_extensions
+        self.enable_when_dirty = enable_when_dirty
+
+        for signal in open_signals:
+            signal.connect(self.lslot_open)
+
+        for signal in save_signals:
+            signal.connect(self.lslot_save)
+
+        for signal in save_as_signals:
+            signal.connect(self.lslot_save_as)
+
+        for signal in cancel_signals:
+            signal.connect(self.lslot_cancel_modifications)
+
+        for signal in quit_signals:
+            signal.connect(self.lslot_quit)
+
+
+    def rslot_current_file_changed(self):  # , file: QFileInfo=None
+        """
+        This right slot should be called whenever the file has been changed.
+        We have to recreate the tabs view and update the title bar
+        :return:
+        """
+        with PopupOnError(self):
+            # refresh if needed
+            self.refresh_view_on_file_change()
+
+            # refresh the title bar
+            self.setWindowFilePath(self.get_current_file())
+
+    @abstractmethod
+    def get_current_file(self) -> str:
+        pass
+
+    @abstractmethod
+    def refresh_view_on_file_change(self):
+        pass
+
+    def rslot_current_file_contents_changed_or_saved(self, cause=None):
+        """
+        Should be called whenever the current contents is changed or saved.
+        * refreshes all QLineEdit widgets in the tabs
+        * check the 'dirtiness' and update the window title, menu bar and buttons accordingly
+        :return:
+        """
+        with PopupOnError(self):
+            # refresh if needed
+            self.refresh_view_on_file_contents_changed_or_saved(cause)
+
+            # Update several widgets' status according to dirtiness state
+            is_dirty = self.is_dirty()
+            self.setWindowModified(is_dirty)
+            for item in self.enable_when_dirty:
+                item.setEnabled(is_dirty)
+
+    @abstractmethod
+    def refresh_view_on_file_contents_changed_or_saved(self, cause):
+        pass
+
+    @abstractmethod
+    def is_dirty(self) -> bool:
+        pass
+
+    def lslot_open(self):
+        """
+        Called by the view when user selects File > Open...
+        :return:
+        """
+        if self.maybe_save_modifications_before_continuing():
+            with PopupOnError(self):
+                # ask the user to select a configuration file to open
+                try:
+                    file_path, _ = QFileDialog.getOpenFileName(self, caption='Open a ' + self.file_type_short
+                                                               + ' File', filter=self.file_type_short
+                                                               + " files (" + ' '.join(self.file_extensions) + ")")
+
+                    # 'cancel' will return without exception but with an empty config_file_path
+                    if file_path == '':
+                        print('User cancelled opening file.')
+                        return
+                except FileNotFoundError:
+                    # 'exit' button press will raise a FileNotFoundError
+                    print('User cancelled opening file.')
+                    return
+
+                # call the logic finally
+                self.open(file_path)
+
+    @abstractmethod
+    def open(self, file_path):
+        pass
+
+    def lslot_save(self):
+        """
+        Called by the view when user selects File > Save, or CTRL+S, or clicks on 'Save' button.
+        It tries to save the file to disk.
+        In case of failure, it triggers the 'save as' action
+        :return:
+        """
+        try:
+            with PopupOnError(self):
+                self.save()
+                return True
+
+        except Exception as e:
+            return self.lslot_save_as()
+
+    @abstractmethod
+    def save(self):
+        pass
+
+    def lslot_save_as(self):
+        """
+        Called by the view when the user clicks on "save as".
+        :return:
+        """
+        try:
+            # popup 'save as', including the checker "file already exists - want to overwrite ?"
+            new_file_path, _ = QFileDialog.getSaveFileName(parent=self,
+                                                           caption='Save ' + self.file_type_short + ' File As...',
+                                                           filter=self.file_type_short + " files ("
+                                                           + ' '.join(self.file_extensions) + ")")
+            # 'cancel' will return without exception but with an empty config_file_path
+            if new_file_path == '':
+                print('User cancelled saving file.')
+                return False
+
+            # save
+            with PopupOnError(self):
+                self.save_as(new_file_path)
+                return True
+
+        except FileNotFoundError:
+            # 'exit' button press will raise a FileNotFoundError
+            print('User cancelled saving file.')
+            return False
+
+    @abstractmethod
+    def save_as(self, file_path):
+        pass
+
+    def lslot_cancel_modifications(self):
+        """
+        Called by the view when user clicks on 'Cancel' button.
+        :return:
+        """
+        with PopupOnError(self):
+            self.cancel_current_modifications()
+
+    @abstractmethod
+    def cancel_current_modifications(self):
+        pass
+
+    def lslot_quit(self):
+        """
+        Called by the view when user clicks on 'Quit' button.
+        :return:
+        """
+        self.close()  # this will trigger the closeEvent()
+
+    def closeEvent(self, event: QCloseEvent):
+        """
+        Called by the view when the user selects File > Quit or closes the application.
+        :return:
+        """
+        if self.maybe_save_modifications_before_continuing():
+            # try to save persisted state >> no need anymore, the QSettings() do it for us automatically
+            # can_exit = self.internal_state.persist_state_to_disk(
+            #                                      self.get_file_path(EnvSwitcherApp.PERSISTED_STATE_FILE))
+            print('Terminating...')
+            event.accept()
+        else:
+            event.ignore()
+
+    def maybe_save_modifications_before_continuing(self) -> bool:
+        """
+        If the state is dirty, asks the user whether he/she wants to save or discard the changes before performing the
+        next operation, or to cancel the next operation
+
+        :return: a boolean indicating if the next operation should be performed (True) or not (False)
+        """
+        if not self.is_dirty():
+            return True
+        else:
+            button_reply = QMessageBox.warning(self, "Application",
+                                               "The document has been modified.\nDo you want to save your changes?",
+                                               QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+            if button_reply == QMessageBox.Save:
+                # try to save and cancel if not successful
+                # note: do not wrap with popup on error here, already done
+                return self.lslot_save()
+            elif button_reply == QMessageBox.Cancel:
+                # cancel the operation
+                return False
+            else:
+                # discard the changes and continue
+                with PopupOnError(self):
+                    self.cancel_current_modifications()
+                return True
+
+
+class EnvSwitcherView(QMainWindow, Ui_MainWindow, FileAwareMixin):
     """
     The 'View' in the MVC pattern.
 
@@ -251,21 +484,18 @@ class EnvSwitcherView(QMainWindow, Ui_MainWindow):
     """
 
     ENV_TAB_WIDGET_PREFIX = "envTab_"
+    TARGET_IS_WHOLE_MACHINE = 'target_is_whole_machine'
 
     # TODO allow user to add & rename tabs see https://stackoverflow.com/questions/44450775/pyqt-gui-with-multiple-tabs
 
-    def __init__(self, apply_current_tab_hook=None, quit_hook=None, save_config_hook=None,
-                 cancel_modifications_hook=None, open_config_file_hook=None, save_config_as_hook=None):
+    def __init__(self, apply_environment_hook, set_environment_target_hook, initial_config: Dict):
         """
         Creates the main application's window.
         The controller should provide method hooks for all main events.
-
-        :param apply_current_tab_hook:
-        :param quit_hook:
-        :param save_config_hook:
-        :param cancel_modifications_hook:
-        :param open_config_file_hook:
-        :param save_config_as_hook:
+        :param apply_environment_hook: a function that will be called when the user clicks on 'apply'. It should have
+        one input that is the environment id
+        :param set_environment_target_hook: a function that will be called when the user changes the 'environment
+        target' setting. It should have one boolean input indicating if the target is the whole machine or not.
         """
         super(EnvSwitcherView, self).__init__()
 
@@ -293,28 +523,43 @@ class EnvSwitcherView(QMainWindow, Ui_MainWindow):
         # del self.envTab1TableView
 
         # **** connect buttons and menu actions to events
-        # -- save
-        save_hook = save_config_hook or self.lslot_save_config
-        self.mainButtonBox.accepted.connect(save_hook)
-        self.actionSave.triggered.connect(save_hook)
-        # -- cancel
-        cancel_hook = cancel_modifications_hook or self.lslot_cancel_modifications
-        self.mainButtonBox.rejected.connect(cancel_hook)
-        # -- apply
-        apply_current_tab_hook = apply_current_tab_hook or self.lslot_apply_current_env
+        # -- file-related: we use this helper class
+        self.setup_file_aware(file_type_short='Configuration', file_extensions=['*.yml', '*.yaml'],
+                              enable_when_dirty=[self.actionSave, self.mainButtonBox.buttons()[0],
+                                                 self.mainButtonBox.buttons()[1]],
+                              open_signals=[self.actionOpen.triggered],
+                              save_signals=[self.mainButtonBox.accepted, self.actionSave.triggered],
+                              save_as_signals=[self.actionSave_As.triggered],
+                              cancel_signals=[self.mainButtonBox.rejected],
+                              quit_signals=[self.actionQuit.triggered]
+                              )
+
+        # -- apply current environment
+        self.apply_environment_hook = apply_environment_hook
         def clicked_hook(button: QAbstractButton):
-            # button.text()
             if button.foregroundRole() == QDialogButtonBox.ApplyRole:
-                current_tab_widget = self.envsTabWidget.currentWidget()
-                apply_current_tab_hook(current_tab_widget.objectName()[len(EnvSwitcherView.ENV_TAB_WIDGET_PREFIX):])
+                self.lslot_apply_clicked()
         self.mainButtonBox.clicked.connect(clicked_hook)
 
-        # *** connect remaining menu actions to events
-        self.actionOpen.triggered.connect(open_config_file_hook or self.lslot_open_config)
-        self.actionSave_As.triggered.connect(save_config_as_hook or self.lslot_save_config_as)
-        self.actionQuit.triggered.connect(quit_hook or self.lslot_quit)
+        # -- set environment
+        # correct initial state
+        if self.TARGET_IS_WHOLE_MACHINE in initial_config.keys():
+            if initial_config[self.TARGET_IS_WHOLE_MACHINE]:
+                self.actionSet_for_local_machine.setChecked(True)
+                self.actionSet_for_current_user.setChecked(False)
+            else:
+                self.actionSet_for_local_machine.setChecked(False)
+                self.actionSet_for_current_user.setChecked(True)
 
-        # *** the list of value editors that will be used in rslot_current_config_changed_or_saved
+        # the 'interlock' between the two
+        self.actionSet_for_current_user.triggered.connect(partial(self.actionSet_for_local_machine.setChecked, False))
+        self.actionSet_for_local_machine.triggered.connect(partial(self.actionSet_for_current_user.setChecked, False))
+
+        # call the hook
+        self.actionSet_for_current_user.triggered.connect(partial(set_environment_target_hook, whole_machine=False))
+        self.actionSet_for_local_machine.triggered.connect(partial(set_environment_target_hook, whole_machine=True))
+
+        # *** the list of value editors that will be used in rslot_current_file_contents_changed_or_saved
         self.line_editors = []
 
     # noinspection PyUnresolvedReferences
@@ -330,28 +575,15 @@ class EnvSwitcherView(QMainWindow, Ui_MainWindow):
         :return:
         """
         # connect the model to the view and save it in self for future references
-        state.comm_qt.current_config_changed_or_saved.connect(self.rslot_current_config_changed_or_saved)
-        state.comm_qt.current_file_changed.connect(self.rslot_current_file_changed)
+        state.signals.current_config_changed_or_saved.connect(self.rslot_current_file_contents_changed_or_saved)
+        state.signals.current_file_changed.connect(self.rslot_current_file_changed)
         self.state = state
 
         # refresh the tabs and current file name
         self.rslot_current_file_changed()
 
         # refresh the buttons status according to 'dirtiness' of the state
-        self.rslot_current_config_changed_or_saved()
-
-    def rslot_current_file_changed(self, file: QFileInfo=None):
-        """
-        Called whenever the configuration file has been changed.
-        We have to recreate the tabs view and update the title bar
-        :return:
-        """
-        with PopupOnError(self):
-            # refresh the tabs
-            self.recreate_tabs_view(self.state)
-
-            # refresh the title bar
-            self.setWindowFilePath(self.state.current_config_file)
+        self.rslot_current_file_contents_changed_or_saved()
 
     class EnvVarEditor(QLineEdit):
         """ A QLineEdit to edit an environment variable value. It remembers the associated env id and var name """
@@ -430,157 +662,61 @@ class EnvSwitcherView(QMainWindow, Ui_MainWindow):
 
         print('Done refreshing environment tabs to reflect opened configuration')
 
-    def rslot_current_config_changed_or_saved(self, cause=None):
+    def get_current_file(self):
+        """ Overridden from FileAwareMixin """
+        return self.state.current_config_file
+
+    def refresh_view_on_file_change(self):
+        """ Overridden from FileAwareMixin """
+        self.recreate_tabs_view(self.state)
+
+    def refresh_view_on_file_contents_changed_or_saved(self, cause):
         """
-        Called by the model whenever the current configuration data is changed or saved.
+        Called whenever the current configuration data is changed or saved.
         * refreshes all QLineEdit widgets in the tabs
         * check the 'dirtiness' and update the window title, menu bar and buttons accordingly
         :return:
         """
-        with PopupOnError(self):
-            # Refresh all the editors' text except the one that triggered the mod (otherwise it will loose focus)
-            for var_value_editor in self.line_editors:
-                if cause != var_value_editor:
-                    var_value_editor.setText(
-                        self.state.get_env_variables(var_value_editor.env_id)[var_value_editor.var_name])
+        # Refresh all the editors' text except the one that triggered the mod (otherwise it will loose focus)
+        for var_value_editor in self.line_editors:
+            if cause != var_value_editor:
+                var_value_editor.setText(
+                    self.state.get_env_variables(var_value_editor.env_id)[var_value_editor.var_name])
 
-            # Update several widgets' status according to dirtiness state
-            is_dirty = self.state.is_dirty()
-            self.setWindowModified(is_dirty)
-            self.actionSave.setEnabled(is_dirty)
-            self.mainButtonBox.buttons()[0].setEnabled(is_dirty)
-            self.mainButtonBox.buttons()[1].setEnabled(is_dirty)
+    def is_dirty(self):
+        """ Overriden from FileAwareMixin """
+        return self.state.is_dirty()
 
-    def lslot_open_config(self):
-        """
-        Called by the view when user selects File > Open...
-        :return:
-        """
-        if self.maybe_save_modifications_before_continuing():
-            with PopupOnError(self):
-                # ask the user to select a configuration file to open
-                try:
-                    config_file_path, _ = QFileDialog.getOpenFileName(self, caption='Open a Configuration File',
-                                                                      filter="Configuration files (*.yml *.yaml)")
-
-                    # 'cancel' will return without exception but with an empty config_file_path
-                    if config_file_path == '':
-                        print('User cancelled opening file.')
-                        return
-                except FileNotFoundError:
-                    # 'exit' button press will raise a FileNotFoundError
-                    print('User cancelled opening file.')
-                    return
-
-                # try to open the configuration file
-                if self.state is None:
-                    raise Exception('Internal error - This view does not have a bound state !!! ')
-                else:
-                    # this will automatically load the corresponding config
-                    self.state.current_config_file = config_file_path
-
-    def lslot_save_config(self):
-        """
-        Called by the view when user selects File > Save, or CTRL+S, or clicks on 'Save' button.
-        It tries to save the configuration to disk.
-        In case of failure, it triggers the 'save as' action
-        :return:
-        """
-        try:
-            with PopupOnError(self):
-                self.state.save_modifications()
-                return True
-        except Exception as e:
-            return self.lslot_save_config_as()
-
-    def lslot_save_config_as(self):
-        """
-        Called by the view when the user clicks on "save as".
-        :return:
-        """
-        try:
-            # popup 'save as', including the checker "file already exists - want to overwrite ?"
-            new_file_path, _ = QFileDialog.getSaveFileName(parent=self,
-                                                           caption='Save Configuration File As...',
-                                                           filter="Configuration files (*.yml *.yaml)")
-            # 'cancel' will return without exception but with an empty config_file_path
-            if new_file_path == '':
-                print('User cancelled saving file.')
-                return False
-
-            # save
-            with PopupOnError(self):
-                self.state.save_as(new_file_path=new_file_path, overwrite=True)
-                return True
-
-        except FileNotFoundError:
-            # 'exit' button press will raise a FileNotFoundError
-            print('User cancelled saving file.')
-            return False
-
-    def lslot_cancel_modifications(self):
-        """
-        Called by the view when user clicks on 'Cancel' button.
-        :return:
-        """
-        with PopupOnError(self):
-            self.state.cancel_modifications()
-
-    def lslot_quit(self):
-        """
-        Called by the view when user clicks on 'Quit' button.
-        :return:
-        """
-        self.close()  # this will trigger the closeEvent()
-
-    def closeEvent(self, event: QCloseEvent):
-        """
-        Called by the view when the user selects File > Quit or closes the application.
-        :return:
-        """
-        if self.maybe_save_modifications_before_continuing():
-            # try to save persisted state >> no need anymore, the QSettings() do it for us automatically
-            # can_exit = self.internal_state.persist_state_to_disk(
-            #                                      self.get_file_path(EnvSwitcherApp.PERSISTED_STATE_FILE))
-            print('Terminating...')
-            event.accept()
+    def open(self, file_path):
+        """ Overridden from FileAwareMixIn """
+        if self.state is None:
+            raise Exception('Internal error - This view does not have a bound state !!! ')
         else:
-            event.ignore()
+            # this will automatically load the corresponding config
+            self.state.current_config_file = file_path
 
-    def maybe_save_modifications_before_continuing(self) -> bool:
-        """
-        If the state is dirty, asks the user whether he/she wants to save or discard the changes before performing the
-        next operation, or to cancel the next operation
+    def save(self):
+        """ Overridden from FileAwareMixIn """
+        self.state.save_modifications()
 
-        :return: a boolean indicating if the next operation should be performed (True) or not (False)
-        """
-        if not self.state.is_dirty():
-            return True
-        else:
-            button_reply = QMessageBox.warning(self, "Application",
-                                               "The document has been modified.\nDo you want to save your changes?",
-                                               QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
-            if button_reply == QMessageBox.Save:
-                # try to save and cancel if not successful
-                # note: do not wrap with popup on error here, already done
-                return self.lslot_save_config()
-            elif button_reply == QMessageBox.Cancel:
-                # cancel the operation
-                return False
-            else:
-                # discard the changes and continue
-                with PopupOnError(self):
-                    self.state.cancel_modifications()
-                return True
+    def save_as(self, file_path):
+        """ Overridden from FileAwareMixIn """
+        self.state.save_as(new_file_path=file_path, overwrite=True)
 
-    def lslot_apply_current_env(self, env_id):
+    def cancel_current_modifications(self):
+        """ Overridden from FileAwareMixIn """
+        self.state.cancel_modifications()
+
+    def lslot_apply_clicked(self):
         """
         Called by the view whenever the apply button is pushed.
         :param env_id:
         :return:
         """
         with PopupOnError(self):
-            self.state.current_configuration.envs[env_id].apply()
+            current_tab_widget = self.envsTabWidget.currentWidget()
+            env_id = current_tab_widget.objectName()[len(EnvSwitcherView.ENV_TAB_WIDGET_PREFIX):]
+            self.apply_environment_hook(env_id)
 
 
 class FileRestoreException(Exception):
@@ -594,6 +730,7 @@ class EnvSwitcherAppHeadless(QApplication):
     """
 
     SETTING_LAST_OPENED_FILE_PATH = 'configuration_file_path'
+    SETTING_TARGET_IS_WHOLE_MACHINE = EnvSwitcherView.TARGET_IS_WHOLE_MACHINE
 
     def __init__(self, argv: list=None, config_file_path: str=None):
         """
@@ -619,7 +756,7 @@ class EnvSwitcherAppHeadless(QApplication):
 
         if config_file_path is None:
             # config_file_path = None means 'open the last opened file'
-            config_file_path = self.settings.value(EnvSwitcherApp.SETTING_LAST_OPENED_FILE_PATH, type=str)
+            config_file_path = self.get_last_opened_file()
             try:
                 print("Restoring last open file: " + config_file_path)
                 self.internal_state = EnvSwitcherState(configuration_file_path=config_file_path)
@@ -654,16 +791,30 @@ class EnvSwitcherAppHeadless(QApplication):
         """
         return self.internal_state.current_configuration
 
+    def get_last_opened_file(self):
+        return self.settings.value(EnvSwitcherApp.SETTING_LAST_OPENED_FILE_PATH, type=str) or ''
+
+    def _persist_last_opened_file(self, file_path):
+        print("saving last open file path for future launches : '" + file_path + "'")
+        self.settings.setValue(EnvSwitcherApp.SETTING_LAST_OPENED_FILE_PATH, file_path)
+
     def persist_last_opened_file(self):
         """
         Persists the currently opened file in the application's settings so that the next time it will load, it will
         remember it
-
         :return:
         """
         file_path = self.internal_state.current_config_file
-        print("saving last open file path for future launches : '" + file_path + "'")
-        self.settings.setValue(EnvSwitcherApp.SETTING_LAST_OPENED_FILE_PATH, file_path)
+        self._persist_last_opened_file(file_path)
+
+    def set_target_whole_machine(self, whole_machine: bool):
+        self.settings.setValue(EnvSwitcherApp.SETTING_TARGET_IS_WHOLE_MACHINE, whole_machine)
+
+    def is_target_whole_machine(self):
+        return self.settings.value(EnvSwitcherApp.SETTING_TARGET_IS_WHOLE_MACHINE, type=bool) or False
+
+    def apply_environment(self, env_id):
+        self.internal_state.apply(env_id, whole_machine=self.is_target_whole_machine())
 
 
 class EnvSwitcherApp(EnvSwitcherAppHeadless):
@@ -694,7 +845,9 @@ class EnvSwitcherApp(EnvSwitcherAppHeadless):
 
         # ** View **
         print("Creating Main View")
-        self.ui = EnvSwitcherView()
+        self.ui = EnvSwitcherView(apply_environment_hook=self.apply_environment,
+                                  set_environment_target_hook=self.set_target_whole_machine,
+                                  initial_config={self.SETTING_TARGET_IS_WHOLE_MACHINE: self.is_target_whole_machine()})
         self.ui.show()  # Do this now, so that the 'open file' dialog below can show
 
         # --Handle the case where no configuration file could be loaded in the constructor
@@ -703,6 +856,7 @@ class EnvSwitcherApp(EnvSwitcherAppHeadless):
             # we have to ask the user to open a configuration file
             print("We need a configuration file, ask the user")
             loaded = False
+            # TODO one days when we support the 'new' function (empty document) this will be removed.
             while not loaded:
                 try:
                     # ask the user to select a configuration file to open
@@ -722,24 +876,20 @@ class EnvSwitcherApp(EnvSwitcherAppHeadless):
                     self.internal_state = EnvSwitcherState(configuration_file_path=config_file_path)
                     # remember the last opened file
                     print("saving last open file path for future launches : '" + config_file_path + "'")
-                    self.settings.setValue(EnvSwitcherApp.SETTING_LAST_OPENED_FILE_PATH, config_file_path)
+                    self._persist_last_opened_file(config_file_path)
                     loaded = True
                 except TypeError as e:
                     warn(str(e))
                 except FileNotFoundError as f:
                     warn(str(f))
 
-        # keep the application informed if the file changes so as to save the last file path in the app settings.
+        # keep the application informed of events that should be persisted in the app settings (across reboots)
         # noinspection PyUnresolvedReferences
-        self.internal_state.comm_qt.current_file_changed.connect(self.slot_current_file_changed)
+        self.internal_state.signals.current_file_changed.connect(self.persist_last_opened_file)
 
         # connect the view to the model
         self.ui.set_model(self.internal_state)
         print('Application ready')
-
-    def slot_current_file_changed(self, file: QFileInfo):
-        # self.persist_last_opened_file(file.filePath())
-        self.persist_last_opened_file()
 
 
 def main(config_file_path: str=None):

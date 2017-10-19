@@ -47,13 +47,17 @@ class EnvConfig:
         dct.update(self.env_variables_dct)
         return dct
 
-    def apply(self):
+    def apply(self, whole_machine: bool=False):
         """
         Applies this environment on the OS
+
+        :param whole_machine: a boolean indicating if we should apply to local user environment (False) or whole
+        machine (True)
         :return:
         """
-        print("Applying environment '" + self.name + "' (" + self.id + ")")
-        set_env_variables_permanently(self.env_variables_dct)
+        target = 'WHOLE MACHINE' if whole_machine else 'CURRENT USER'
+        print("Applying environment '" + self.name + "' (" + self.id + ") for " + target)
+        set_env_variables_permanently(self.env_variables_dct, whole_machine=whole_machine)
         print("Applying environment DONE")
 
 
@@ -108,16 +112,18 @@ class GlobalEnvsConfig:
         """
         return list(self.envs.keys())
 
-    def apply(self, env_id):
+    def apply(self, env_id, whole_machine: bool = False):
         """
         Applies environment 'id', or throws an error if that environment id does not exist
 
         :param env_id: the environment id to apply
+        :param whole_machine: a boolean indicating if we should apply to local user environment (False) or whole
+        machine (True)
         :return:
         """
         # if the environment required is known, apply it
         if env_id in self.envs.keys():
-            self.envs[env_id].apply()
+            self.envs[env_id].apply(whole_machine=whole_machine)
         else:
             raise UnknownEnvIdException.create_from(env_id, list(self.envs.keys()))
 

@@ -26,11 +26,13 @@ def print_external_env_var(var_name):
 #     q.put(os.getenv(var_name))
 
 
-def get_external_env_var(var_name):
+def get_external_env_var(var_name, whole_machine: bool):
     """
     Similar to  os.getenv(var_name) but uses a command process to check the variable value out of this process
 
     :param var_name:
+    :param whole_machine: if True the env variables will be read from the MACHINE level. If False it will be read from
+    USER level
     :return:
     """
     case = check_platform_and_get_case()
@@ -66,31 +68,42 @@ WINDOWS = 1
 LINUX = 2
 
 
-def set_env_permanently(env_varname, env_value):
+def set_env_permanently(env_varname, env_value, also_apply_on_this_process: bool=True, whole_machine: bool = False):
     """
     Similar to os.setenv(var_name, value) but performs a permanent change, not just for the current process.
 
     :param env_varname:
     :param env_value:
+    :param also_apply_on_this_process:
+    :param whole_machine: if True the env variables will be set at the MACHINE level. If False it will be done at
+    USER level
     :return:
     """
-    set_env_variables_permanently({env_varname: env_value})
+    set_env_variables_permanently({env_varname: env_value},also_apply_on_this_process=also_apply_on_this_process,
+                                  whole_machine=whole_machine)
 
 
-def set_env_variables_permanently(key_value_pairs: Dict[str, Any], also_apply_on_this_process: bool=True):
+def set_env_variables_permanently(key_value_pairs: Dict[str, Any], also_apply_on_this_process: bool=True,
+                                  whole_machine: bool = False):
     """
     Similar to set_env_permanently but for a dictionary of environment variable names/value
+
     :param key_value_pairs:
+    :param also_apply_on_this_process:
+    :param whole_machine: if True the env variables will be set at the MACHINE level. If False it will be done at
+    USER level
     :return:
     """
     # -- permanent (all new processes) application
     case = check_platform_and_get_case()
     if case is WINDOWS:
         from envswitch.env_api_winimpl import set_env_variables_permanently_win
-        set_env_variables_permanently_win(key_value_pairs)
+        set_env_variables_permanently_win(key_value_pairs, whole_machine)
+
     elif case is LINUX:
         from envswitch.env_api_linuximpl import set_env_variables_permanently_linux
-        set_env_variables_permanently_linux(key_value_pairs)
+        set_env_variables_permanently_linux(key_value_pairs, whole_machine)
+
     else:
         raise NotImplementedError('Code for this platform is missing in envswitch, please create an issue '
                                   'on the github project page and optionally propose a pull request')
@@ -128,8 +141,3 @@ def check_platform_and_get_case() -> int:
         return LINUX
     else:
         raise ValueError('This operating system/version is currently unsupported: ' + platform.platform())
-
-
-
-
-

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui/sprint2_dynamic.ui'
+# Form implementation generated from reading ui file 'ui\sprint3_enhancements.ui'
 #
 # Created by: PyQt5 UI code generator 5.6
 #
@@ -66,6 +66,8 @@ class Ui_MainWindow(object):
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
+        self.menuSettings = QtWidgets.QMenu(self.menubar)
+        self.menuSettings.setObjectName("menuSettings")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -78,13 +80,23 @@ class Ui_MainWindow(object):
         self.actionSave_As.setObjectName("actionSave_As")
         self.actionQuit = QtWidgets.QAction(MainWindow)
         self.actionQuit.setObjectName("actionQuit")
+        self.actionSet_for_current_user = QtWidgets.QAction(MainWindow)
+        self.actionSet_for_current_user.setCheckable(True)
+        self.actionSet_for_current_user.setChecked(True)
+        self.actionSet_for_current_user.setObjectName("actionSet_for_current_user")
+        self.actionSet_for_local_machine = QtWidgets.QAction(MainWindow)
+        self.actionSet_for_local_machine.setCheckable(True)
+        self.actionSet_for_local_machine.setObjectName("actionSet_for_local_machine")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionSave_As)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
+        self.menuSettings.addAction(self.actionSet_for_current_user)
+        self.menuSettings.addAction(self.actionSet_for_local_machine)
         self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuSettings.menuAction())
 
         self.retranslateUi(MainWindow)
         self.envsTabWidget.setCurrentIndex(0)
@@ -93,6 +105,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.menuFile.setTitle(_translate("MainWindow", "File"))
+        self.menuSettings.setTitle(_translate("MainWindow", "Settings"))
         self.actionOpen.setText(_translate("MainWindow", "Open..."))
         self.actionOpen.setToolTip(_translate("MainWindow", "Open Configuration File"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
@@ -102,4 +115,6 @@ class Ui_MainWindow(object):
         self.actionSave_As.setToolTip(_translate("MainWindow", "Save Configuration To Another File"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
         self.actionQuit.setShortcut(_translate("MainWindow", "Ctrl+F4"))
+        self.actionSet_for_current_user.setText(_translate("MainWindow", "Set for current user"))
+        self.actionSet_for_local_machine.setText(_translate("MainWindow", "Set for local machine"))
 
