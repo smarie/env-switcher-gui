@@ -1,3 +1,7 @@
+### 1.4.1 - Linux 64 version GUI
+
+* Fixed an issue with the Linux 64bit version: Qt was not loading correctly because of the xcb dependency. See [#12](https://github.com/smarie/env-switcher-gui/issues/12)
+
 ### 1.4.0 - New settings
 
 * Added a settings menu in order to choose whether to apply the environment variables for current user (default) or local machine. Settings are persisted

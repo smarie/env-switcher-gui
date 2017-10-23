@@ -47,14 +47,17 @@ else:
 # ******** define what to include in the frozen version *********
 files_to_include = ['LICENSE', 'LICENSE-PyQt', 'LICENSE-Qt', version_file_cx_freeze, 'README.md', 'envswitch/resources']
 
+# we need a way to include the Qt 'platforms/' folder in the final folder.
+# because cx_Freeze sometimes does not find the correct one, or does not find it at all.
+# the best would be to detect qt's current path and find it relatively.
+qt_dir = os.path.dirname(shutil.which('qmake'))
+print('Found qt bin/ directory at : ' + qt_dir)
+qt_platforms_folder = os.path.abspath(os.path.join(qt_dir, os.path.pardir, 'plugins', 'platforms'))
 if sys.platform == "win32":
-    # we need a way to include the Qt 'platforms/' folder in the final folder.
-    # because cx_Freeze sometimes does not find the correct one, or does not find it at all.
-    # the best would be to detect qt's current path and find it relatively.
-    qt_dir = os.path.dirname(shutil.which('qmake'))
-    print('Found qt bin/ directory at : ' + qt_dir)
-    qt_platforms_folder = os.path.abspath(os.path.join(qt_dir, os.path.pardir, 'plugins', 'platforms'))
     files_to_include.append((os.path.join(qt_platforms_folder, 'qwindows.dll'), 'platforms/qwindows.dll'))
+# else:
+#     not needed ?
+#     files_to_include.append((os.path.join(qt_platforms_folder, 'libqxcb.so'), 'platforms/libqxcb.so'))
 
 # unfortunately for some reason the dll files from the current anaconda env do not work,
 # while the one from root (Anaconda/Library/plugins/platforms) works, so we include the latter in the sources
