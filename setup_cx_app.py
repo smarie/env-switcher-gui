@@ -53,11 +53,14 @@ files_to_include = ['LICENSE', 'LICENSE-PyQt', 'LICENSE-Qt', version_file_cx_fre
 qt_dir = os.path.dirname(shutil.which('qmake'))
 print('Found qt bin/ directory at : ' + qt_dir)
 qt_platforms_folder = os.path.abspath(os.path.join(qt_dir, os.path.pardir, 'plugins', 'platforms'))
+qt_libs_folder = os.path.abspath(os.path.join(qt_dir, os.path.pardir, 'lib'))
 if sys.platform == "win32":
     files_to_include.append((os.path.join(qt_platforms_folder, 'qwindows.dll'), 'platforms/qwindows.dll'))
-# else:
-#     not needed ?
-#     files_to_include.append((os.path.join(qt_platforms_folder, 'libqxcb.so'), 'platforms/libqxcb.so'))
+else:
+    # we have to include two additional Qt libraries
+    files_to_include.append((os.path.join(qt_platforms_folder, 'libqxcb.so'), 'platforms/libqxcb.so'))
+    files_to_include.append((os.path.join(qt_libs_folder, 'libQt5DBus.so.5'), 'libQt5DBus.so.5'))
+    files_to_include.append((os.path.join(qt_libs_folder, 'libQt5XcbQpa.so.5'), 'libQt5XcbQpa.so.5'))
 
 # unfortunately for some reason the dll files from the current anaconda env do not work,
 # while the one from root (Anaconda/Library/plugins/platforms) works, so we include the latter in the sources
