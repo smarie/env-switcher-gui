@@ -4,4 +4,4 @@ setuptools_scm
 pandoc
 pypandoc
 docutils
-cx_Freeze
+cx_Freeze==5.0.2
