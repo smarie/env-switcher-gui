@@ -1,6 +1,6 @@
 # env-switcher-gui
 
-[![Windows Build](https://ci.appveyor.com/api/projects/status/15y7mvbqi4qu2v4y?svg=true)](https://ci.appveyor.com/project/smarie/env-switcher-gui) [![Linux build](https://travis-ci.org/smarie/env-switcher-gui.svg?branch=master)](https://travis-ci.org/smarie/env-switcher-gui) [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://smarie.github.io/env-switcher-gui/) [![PyPI](https://img.shields.io/badge/PyPI-envswitch-blue.svg)](https://pypi.python.org/pypi/envswitch/)
+[![Windows Build](https://ci.appveyor.com/api/projects/status/15y7mvbqi4qu2v4y?svg=true)](https://ci.appveyor.com/project/smarie/env-switcher-gui) [![Linux build](https://travis-ci.org/smarie/env-switcher-gui.svg?branch=master)](https://travis-ci.org/smarie/env-switcher-gui) [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://smarie.github.io/env-switcher-gui/) [![PyPI](https://img.shields.io/badge/PyPI-envswitch-blue.svg)](https://pypi.python.org/pypi/envswitch/) [![Github downloads for all releases](https://img.shields.io/github/downloads/smarie/env-switcher-gui/total.svg)](https://www.somsubhra.com/github-release-stats/?username=smarie&repository=env-switcher-gui)  [![GitHub release](https://img.shields.io/github/release/smarie/env-switcher-gui.svg)](https://github.com/smarie/timezone-boundary-builder/releases/latest)
 
 A very simple GUI and CLI to manage environment variables.
 
